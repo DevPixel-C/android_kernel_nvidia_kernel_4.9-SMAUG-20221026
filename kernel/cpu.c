@@ -1084,9 +1084,12 @@ static int do_cpu_down(unsigned int cpu, enum cpuhp_state target)
 {
 	int err;
 
+	trace_cpu_hotplug(cpu, POWER_CPU_DOWN_START);
+
 	cpu_maps_update_begin();
 	err = cpu_down_maps_locked(cpu, target);
 	cpu_maps_update_done();
+	trace_cpu_hotplug(cpu, POWER_CPU_DOWN_DONE);
 	return err;
 }
 int cpu_down(unsigned int cpu)
@@ -1203,6 +1206,8 @@ static int do_cpu_up(unsigned int cpu, enum cpuhp_state target)
 {
 	int err = 0;
 
+	trace_cpu_hotplug(cpu, POWER_CPU_UP_START);
+
 	if (!cpu_possible(cpu)) {
 		pr_err("can't online cpu %d because it is not configured as may-hotadd at boot time\n",
 		       cpu);
@@ -1230,6 +1235,7 @@ static int do_cpu_up(unsigned int cpu, enum cpuhp_state target)
 	err = _cpu_up(cpu, 0, target);
 out:
 	cpu_maps_update_done();
+	trace_cpu_hotplug(cpu, POWER_CPU_UP_DONE);
 	return err;
 }
 
