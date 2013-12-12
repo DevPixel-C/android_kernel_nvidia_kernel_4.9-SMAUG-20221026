@@ -170,11 +170,13 @@ static ssize_t power_supply_show_property(struct device *dev,
 	case POWER_SUPPLY_PROP_MODEL_NAME ... POWER_SUPPLY_PROP_SERIAL_NUMBER:
 		ret = sprintf(buf, "%s\n", value.strval);
 		break;
+	case POWER_SUPPLY_PROP_CHARGE_COUNTER_EXT:
+	    ret = sprintf(buf, "%s\n", 
+			  power_supply_prop_charge_counter_ext[value.int64val]);
+	    break;
 	default:
 		ret = sprintf(buf, "%d\n", value.intval);
 	}
-
-	return ret;
 }
 
 static ssize_t power_supply_store_property(struct device *dev,
@@ -302,6 +304,8 @@ static struct device_attribute power_supply_attrs[] = {
 	POWER_SUPPLY_ATTR(usb_hc),
 	POWER_SUPPLY_ATTR(usb_otg),
 	POWER_SUPPLY_ATTR(charge_enabled),
+	/* Local extensions of type int64_t */
+	POWER_SUPPLY_ATTR(charge_counter_ext),
 	/* Properties of type `const char *' */
 	POWER_SUPPLY_ATTR(model_name),
 	POWER_SUPPLY_ATTR(manufacturer),
