@@ -2043,6 +2043,10 @@ void sdhci_set_power_noreg(struct sdhci_host *host, unsigned char mode,
 	u8 pwr = 0;
 
 	if (mode != MMC_POWER_OFF) {
+		if (vdd > 21) {
+			printk("SHIELD wifi power workaround applied\n");
+			vdd = 21;
+		}
 		switch (1 << vdd) {
 		case MMC_VDD_165_195:
 		/*
