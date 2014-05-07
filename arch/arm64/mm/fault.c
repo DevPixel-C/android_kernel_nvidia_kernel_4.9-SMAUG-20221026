@@ -42,6 +42,9 @@
 #include <asm/pgtable.h>
 #include <asm/tlbflush.h>
 
+#define CREATE_TRACE_POINTS
+#include <trace/events/pagefault.h>
+
 struct fault_info {
 	int	(*fn)(unsigned long addr, unsigned int esr,
 		      struct pt_regs *regs);
@@ -354,6 +357,8 @@ static int __kprobes do_page_fault(unsigned long addr, unsigned int esr,
 	unsigned long vm_flags = VM_READ | VM_WRITE | VM_EXEC;
 	unsigned int mm_flags = FAULT_FLAG_ALLOW_RETRY | FAULT_FLAG_KILLABLE;
 
+	trace_pagefault_entry(addr);
+
 	if (notify_page_fault(regs, esr))
 		return 0;
 
@@ -421,7 +426,7 @@ retry:
 	if ((fault & VM_FAULT_RETRY) && fatal_signal_pending(current)) {
 		if (!user_mode(regs))
 			goto no_context;
-		return 0;
+		goto return0;
 	}
 
 	/*
@@ -459,7 +464,7 @@ retry:
 	 */
 	if (likely(!(fault & (VM_FAULT_ERROR | VM_FAULT_BADMAP |
 			      VM_FAULT_BADACCESS))))
-		return 0;
+		goto return0;
 
 	/*
 	 * If we are in kernel mode at this point, we have no context to
@@ -475,7 +480,7 @@ retry:
 		 * oom-killed).
 		 */
 		pagefault_out_of_memory();
-		return 0;
+		goto return0;
 	}
 
 	if (fault & VM_FAULT_SIGBUS) {
@@ -496,10 +501,12 @@ retry:
 	}
 
 	__do_user_fault(tsk, addr, esr, sig, code, regs);
-	return 0;
+	goto return0;
 
 no_context:
 	__do_kernel_fault(addr, esr, regs);
+return0:
+	trace_pagefault_exit(addr);
 	return 0;
 }
 
