@@ -496,6 +496,9 @@ static inline int lock_page_or_retry(struct page *page, struct mm_struct *mm,
  * and for filesystems which need to wait on PG_private.
  */
 extern void wait_on_page_bit(struct page *page, int bit_nr);
+
+extern void wait_on_page_bit_timeout(struct page *page, int bit_nr);
+
 extern int wait_on_page_bit_killable(struct page *page, int bit_nr);
 extern void wake_up_page_bit(struct page *page, int bit_nr);
 
@@ -524,6 +527,12 @@ static inline int wait_on_page_locked_killable(struct page *page)
 	if (!PageLocked(page))
 		return 0;
 	return wait_on_page_bit_killable(compound_head(page), PG_locked);
+}
+
+static inline void wait_on_page_locked_timeout(struct page *page)
+{
+	if (PageLocked(page))
+		wait_on_page_bit_timeout(page, PG_locked);
 }
 
 /* 

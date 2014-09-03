@@ -345,6 +345,11 @@ void delete_from_page_cache(struct page *page)
 }
 EXPORT_SYMBOL(delete_from_page_cache);
 
+static int sleep_on_page_timeout(struct wait_bit_key *word)
+{
+	return io_schedule_timeout(2) ? 0 : -EAGAIN;
+}
+
 int filemap_check_errors(struct address_space *mapping)
 {
 	int ret = 0;
@@ -816,6 +821,16 @@ struct wait_page_queue {
 	int bit_nr;
 	wait_queue_t wait;
 };
+
+void wait_on_page_bit_timeout(struct page *page, int bit_nr)
+{
+	DEFINE_WAIT_BIT(wait, &page->flags, bit_nr);
+
+	if (test_bit(bit_nr, &page->flags))
+		__wait_on_bit(page_waitqueue(page), &wait,
+				sleep_on_page_timeout, TASK_UNINTERRUPTIBLE);
+}
+EXPORT_SYMBOL(wait_on_page_bit_timeout);
 
 static int wake_page_function(wait_queue_t *wait, unsigned mode, int sync, void *arg)
 {
