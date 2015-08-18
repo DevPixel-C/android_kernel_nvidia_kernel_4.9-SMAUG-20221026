@@ -67,6 +67,8 @@ lkdtm-$(CONFIG_LKDTM)		+= lkdtm_usercopy.o
 CFLAGS_lkdtm_rodata.o		+= $(DISABLE_LTO)
 KCOV_INSTRUMENT_lkdtm_rodata.o	:= n
 
+obj-$(CONFIG_GPS_HWGEOFENCING)  += gps_wake.o
+
 OBJCOPYFLAGS :=
 OBJCOPYFLAGS_lkdtm_rodata_objcopy.o := \
 			--set-section-flags .text=alloc,readonly \
