@@ -5,8 +5,6 @@
 config PINCTRL
 	bool
 
-if PINCTRL
-
 menu "Pin controllers"
 	depends on PINCTRL
 
@@ -283,5 +281,3 @@ config PINCTRL_AS3722
 	  supports the GPIO functionality through gpiolib.
 
 endmenu
-
-endif
