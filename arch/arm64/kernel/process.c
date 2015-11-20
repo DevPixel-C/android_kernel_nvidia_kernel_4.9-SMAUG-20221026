@@ -46,6 +46,7 @@
 #include <linux/notifier.h>
 #include <trace/events/power.h>
 #include <linux/percpu.h>
+#include <linux/console.h>
 
 #include <asm/alternative.h>
 #include <asm/compat.h>
@@ -117,6 +118,7 @@ void machine_shutdown(void)
 void machine_halt(void)
 {
 	local_irq_disable();
+	console_unlock();
 	smp_send_stop();
 	while (1);
 }
@@ -130,6 +132,7 @@ void machine_halt(void)
 void machine_power_off(void)
 {
 	local_irq_disable();
+	console_unlock();
 	smp_send_stop();
 	if (pm_power_off)
 		pm_power_off();
@@ -148,6 +151,7 @@ void machine_restart(char *cmd)
 {
 	/* Disable interrupts first */
 	local_irq_disable();
+	console_unlock();
 	smp_send_stop();
 
 	/*
