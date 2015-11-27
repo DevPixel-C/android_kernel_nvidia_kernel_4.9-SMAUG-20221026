@@ -67,6 +67,7 @@ struct psci_operations psci_ops = {
 	.conduit = PSCI_CONDUIT_NONE,
 	.smccc_version = SMCCC_VERSION_1_0,
 };
+struct extended_psci_operations extended_ops;
 
 typedef unsigned long (psci_fn)(unsigned long, unsigned long,
 				unsigned long, unsigned long);
@@ -408,8 +409,11 @@ int psci_cpu_init_idle(unsigned int cpu)
 static int psci_suspend_finisher(unsigned long index)
 {
 	u32 *state = __this_cpu_read(psci_power_state);
+	u32 suspend_state = state[index-1];
 
-	return psci_ops.cpu_suspend(state[index - 1],
+	if (extended_ops.make_power_state)
+		suspend_state = extended_ops.make_power_state(suspend_state);
+	return psci_ops.cpu_suspend(suspend_state,
 				    virt_to_phys(cpu_resume));
 }
 
@@ -417,6 +421,7 @@ int psci_cpu_suspend_enter(unsigned long index)
 {
 	int ret;
 	u32 *state = __this_cpu_read(psci_power_state);
+	u32 suspend_state = state[index-1];
 	/*
 	 * idle state index 0 corresponds to wfi, should never be called
 	 * from the cpu_suspend operations
@@ -424,9 +429,11 @@ int psci_cpu_suspend_enter(unsigned long index)
 	if (WARN_ON_ONCE(!index))
 		return -EINVAL;
 
-	if (!psci_power_state_loses_context(state[index - 1]))
-		ret = psci_ops.cpu_suspend(state[index - 1], 0);
-	else
+	if (!psci_power_state_loses_context(suspend_state)) {
+		if (extended_ops.make_power_state)
+			suspend_state = extended_ops.make_power_state(suspend_state);
+		ret = psci_ops.cpu_suspend(suspend_state, 0);
+	} else
 		ret = cpu_suspend(index, psci_suspend_finisher);
 
 	return ret;
