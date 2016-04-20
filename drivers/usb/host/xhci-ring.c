@@ -2132,6 +2132,7 @@ static int process_isoc_td(struct xhci_hcd *xhci, struct xhci_td *td,
 		skip_td = true;
 		break;
 	case COMP_TX_ERR:
+		xhci->xhci_ereport.comp_tx_err++;
 		frame->status = -EPROTO;
 		if (event_trb != td->last_trb)
 			return 0;
@@ -2431,6 +2432,7 @@ static int handle_tx_event(struct xhci_hcd *xhci,
 		break;
 	case COMP_SPLIT_ERR:
 	case COMP_TX_ERR:
+		xhci->xhci_ereport.comp_tx_err++;
 		xhci_dbg(xhci, "Transfer error on endpoint\n");
 		status = -EPROTO;
 		break;
