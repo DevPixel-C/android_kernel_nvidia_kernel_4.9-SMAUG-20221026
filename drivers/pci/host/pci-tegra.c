@@ -857,7 +857,7 @@ static struct pci_bus *tegra_pcie_scan_bus(int nr,
 				  &sys->resources);
 	if (!bus)
 		return NULL;
-
+	pci_add_flags(PCI_REASSIGN_ALL_BUS);
 	pci_scan_child_bus(bus);
 
 	return bus;
