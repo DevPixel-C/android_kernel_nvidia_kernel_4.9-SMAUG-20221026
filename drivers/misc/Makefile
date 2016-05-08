@@ -68,6 +68,7 @@ CFLAGS_lkdtm_rodata.o		+= $(DISABLE_LTO)
 KCOV_INSTRUMENT_lkdtm_rodata.o	:= n
 
 obj-$(CONFIG_GPS_HWGEOFENCING)  += gps_wake.o
+obj-$(CONFIG_BLUEDROID_PM)      += bluedroid_pm.o
 
 OBJCOPYFLAGS :=
 OBJCOPYFLAGS_lkdtm_rodata_objcopy.o := \
