@@ -856,8 +856,8 @@ source "drivers/misc/mic/Kconfig"
 source "drivers/misc/genwqe/Kconfig"
 source "drivers/misc/echo/Kconfig"
 source "drivers/misc/cxl/Kconfig"
-
 trysource "../nvidia/drivers/misc/Kconfig.nvidia"
 trysource "../nvidia/drivers/misc/tegra186-ahc/Kconfig.nvidia"
 trysource "drivers/misc/tegra186-ahc/Kconfig.nvidia"
+source "drivers/misc/inter-tegra/Kconfig"
 endmenu
