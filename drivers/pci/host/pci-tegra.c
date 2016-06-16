@@ -2555,13 +2555,6 @@ static void tegra_pcie_check_ports(struct tegra_pcie *pcie)
 #endif
 
 	list_for_each_entry_safe(port, tmp, &pcie->ports, list) {
-		if (port->has_mxm_port) {
-			if (tegra_pcie_mxm_pwr_init(port))
-				dev_info(pcie->dev,
-					"sxm_pwr_good is down for port %d, ignoring\n",
-					 port->index);
-		}
-
 		dev_info(pcie->dev, "probing port %u, using %u lanes and lane map as 0x%x\n",
 			 port->index, port->lanes, pcie->plat_data->lane_map);
 
@@ -4619,6 +4612,7 @@ static int tegra_pcie_probe(struct platform_device *pdev)
 	int i;
 	const struct of_device_id *match;
 	struct tegra_pcie *pcie;
+	struct tegra_pcie_port *port, *tmp;
 
 	PR_FUNC_LINE;
 
@@ -4696,6 +4690,15 @@ static int tegra_pcie_probe(struct platform_device *pdev)
 	if (IS_ERR(pcie->prod_list)) {
 		dev_info(pcie->dev, "No prod values found\n");
 		pcie->prod_list = NULL;
+	}
+
+	list_for_each_entry_safe(port, tmp, &pcie->ports, list) {
+		if (port->has_mxm_port) {
+			if (tegra_pcie_mxm_pwr_init(port))
+				dev_info(pcie->dev,
+					"sxm_pwr_good is down for port %d, ignoring\n",
+					 port->index);
+		}
 	}
 
 	/* Enable Runtime PM for PCIe, TODO: Need to add PCIe host device */
