@@ -2157,7 +2157,7 @@ void tegra_pcie_port_disable_per_pdev(struct pci_dev *pdev)
 #define UPHY_LANE_AUX_CTL_1			(0x0)
 #define   AUX_TX_RDET_STATUS			(0x1 << 7)
 
-bool tegra_pcie_get_lane_rdet(struct tegra_pcie *pcie, u8 lane_num)
+static bool tegra_pcie_get_lane_rdet(struct tegra_pcie *pcie, u8 lane_num)
 {
 	u32 data;
 
