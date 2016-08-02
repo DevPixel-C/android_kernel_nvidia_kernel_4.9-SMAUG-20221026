@@ -1558,6 +1558,7 @@ static int tegra_pcie_enable_regulators(struct tegra_pcie *pcie)
 		return 0;
 
 	pcie->power_rails_enabled = 1;
+	dev_info(pcie->dev, "PCIE: Enable power rails\n");
 
 	for (i = 0; i < pcie->soc_data->num_pcie_regulators; i++) {
 		if (pcie->pcie_regulators[i])
@@ -1587,6 +1588,7 @@ static int tegra_pcie_disable_regulators(struct tegra_pcie *pcie)
 	}
 
 	pcie->power_rails_enabled = 0;
+	dev_info(pcie->dev, "PCIE: Disable power rails\n");
 	return 0;
 
 }
