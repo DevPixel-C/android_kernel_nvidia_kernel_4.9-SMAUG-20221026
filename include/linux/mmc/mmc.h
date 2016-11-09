@@ -84,6 +84,11 @@
 #define MMC_APP_CMD              55   /* ac   [31:16] RCA        R1  */
 #define MMC_GEN_CMD              56   /* adtc [0] RD/WR          R1  */
 
+  /* class 11 */
+#define MMC_CMDQ_TASK_MGMT	48	/* ac			R1b */
+/* Flushing a large amount of cached data may take a long time. */
+#define MMC_FLUSH_REQ_TIMEOUT_MS 90000 /* msec */
+
 static inline bool mmc_op_multi(u32 opcode)
 {
 	return opcode == MMC_WRITE_MULTIPLE_BLOCK ||
@@ -272,6 +277,7 @@ struct _mmc_csd {
  * EXT_CSD fields
  */
 
+#define EXT_CSD_CMDQ_MODE_EN		15      /* R/W */
 #define EXT_CSD_FLUSH_CACHE		32      /* W */
 #define EXT_CSD_CACHE_CTRL		33      /* R/W */
 #define EXT_CSD_POWER_OFF_NOTIFICATION	34	/* R/W */
@@ -334,6 +340,8 @@ struct _mmc_csd {
 #define EXT_CSD_PRE_EOL_INFO		267	/* RO */
 #define EXT_CSD_DEVICE_LIFE_TIME_EST_TYP_A	268	/* RO */
 #define EXT_CSD_DEVICE_LIFE_TIME_EST_TYP_B	269	/* RO */
+#define EXT_CSD_CMDQ_DEPTH		307	/* RO */
+#define EXT_CSD_CMDQ_SUPPORT		308	/* RO */
 #define EXT_CSD_SUPPORTED_MODE		493	/* RO */
 #define EXT_CSD_TAG_UNIT_SIZE		498	/* RO */
 #define EXT_CSD_DATA_TAG_SUPPORT	499	/* RO */
