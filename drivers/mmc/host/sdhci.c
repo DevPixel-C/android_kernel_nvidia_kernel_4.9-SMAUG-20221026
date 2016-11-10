@@ -1604,9 +1604,11 @@ static void sdhci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 		!(host->quirks2 & SDHCI_QUIRK2_PRESET_VALUE_BROKEN))
 		sdhci_enable_preset_value(host, false);
 
-	if (!ios->clock || ios->clock != host->clock) {
+	if (ios->clock && (ios->clock != host->clock)) {
+		spin_unlock_irqrestore(&host->lock, flags);
 		host->ops->set_clock(host, ios->clock);
 		host->clock = ios->clock;
+		spin_lock_irqsave(&host->lock, flags);
 
 		if (host->quirks & SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK &&
 		    host->clock) {
@@ -1692,7 +1694,8 @@ static void sdhci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 			sdhci_writeb(host, ctrl, SDHCI_HOST_CONTROL);
 
 			/* Re-enable SD Clock */
-			host->ops->set_clock(host, host->clock);
+			clk |= SDHCI_CLOCK_CARD_EN;
+			sdhci_writew(host, clk, SDHCI_CLOCK_CONTROL);
 		}
 
 		/* Reset SD Clock Enable */
@@ -1719,7 +1722,9 @@ static void sdhci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 		}
 
 		/* Re-enable SD Clock */
+		spin_unlock_irqrestore(&host->lock, flags);
 		host->ops->set_clock(host, host->clock);
+		spin_lock_irqsave(&host->lock, flags);
 	} else
 		sdhci_writeb(host, ctrl, SDHCI_HOST_CONTROL);
 
@@ -1733,6 +1738,12 @@ static void sdhci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 
 	mmiowb();
 	spin_unlock_irqrestore(&host->lock, flags);
+
+	if (!ios->clock && !host->mmc->skip_host_clkgate &&
+		(ios->clock != host->clock)) {
+		host->ops->set_clock(host, ios->clock);
+		host->clock = ios->clock;
+	}
 }
 
 static int sdhci_get_cd(struct mmc_host *mmc)
