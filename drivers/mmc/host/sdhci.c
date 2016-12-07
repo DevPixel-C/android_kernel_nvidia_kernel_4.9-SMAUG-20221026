@@ -1873,6 +1873,9 @@ static int sdhci_start_signal_voltage_switch(struct mmc_host *mmc,
 	if (host->version < SDHCI_SPEC_300)
 		return 0;
 
+	if (host->ops->voltage_switch_pre)
+		host->ops->voltage_switch_pre(host, ios->signal_voltage);
+
 	ctrl = sdhci_readw(host, SDHCI_HOST_CONTROL2);
 
 	switch (ios->signal_voltage) {
@@ -1951,6 +1954,9 @@ static int sdhci_start_signal_voltage_switch(struct mmc_host *mmc,
 		/* No signal voltage switch required */
 		return 0;
 	}
+
+	if (host->ops->voltage_switch_post)
+		host->ops->voltage_switch_pre(host, ios->signal_voltage);
 }
 
 static int sdhci_card_busy(struct mmc_host *mmc)
