@@ -204,4 +204,10 @@ source "drivers/fpga/Kconfig"
 
 source "drivers/tee/Kconfig"
 
+trysource "../t18x/drivers/staging/mttcan/Kconfig.t18x"
+trysource "drivers/staging/mttcan/Kconfig.t18x"
+
+trysource "../t18x/drivers/tachometer/Kconfig.t18x"
+trysource "drivers/tachometer/Kconfig.t18x"
+
 endmenu
