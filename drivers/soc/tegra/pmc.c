@@ -405,11 +405,13 @@ static void tegra_pmc_register_update(int offset,
 	tegra_pmc_writel(pmc_reg, offset);
 }
 
+#ifndef CONFIG_TEGRA186_PMC
 int tegra_read_wake_status(u32 *wake_status)
 {
 	// TODO: need to check if tegra-wakeups.c is still needed by t210
 	return 0;
 }
+#endif
 
 #ifndef CONFIG_TEGRA_POWERGATE
 static inline bool tegra_powergate_state(int id)
@@ -1257,6 +1259,7 @@ void tegra_pmc_reset_system(void)
 }
 EXPORT_SYMBOL(tegra_pmc_reset_system);
 
+#ifndef CONFIG_TEGRA186_PMC
 void tegra_pmc_iopower_enable(int reg, u32 bit_mask)
 {
 	tegra_pmc_register_update(reg, bit_mask, 0);
@@ -1280,6 +1283,7 @@ int tegra_pmc_iopower_get_status(int reg, u32 bit_mask)
 		return 1;
 }
 EXPORT_SYMBOL(tegra_pmc_iopower_get_status);
+#endif
 
 void tegra_io_dpd_enable(struct tegra_io_dpd *hnd)
 {
@@ -1742,6 +1746,7 @@ int tegra_pmc_hsic_phy_disable_sleepwalk(int port)
 }
 EXPORT_SYMBOL(tegra_pmc_hsic_phy_disable_sleepwalk);
 
+#ifndef CONFIG_TEGRA186_PMC
 void tegra_pmc_fuse_control_ps18_latch_set(void)
 {
 	u32 val;
@@ -1775,6 +1780,7 @@ void tegra_pmc_fuse_control_ps18_latch_clear(void)
 	mdelay(1);
 }
 EXPORT_SYMBOL(tegra_pmc_fuse_control_ps18_latch_clear);
+#endif
 
 #ifdef CONFIG_PM_SLEEP
 enum tegra_suspend_mode tegra_pmc_get_suspend_mode(void)
