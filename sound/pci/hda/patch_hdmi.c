@@ -2160,6 +2160,14 @@ static int generic_hdmi_build_controls(struct hda_codec *codec)
 		struct hdmi_eld *pin_eld = &per_pin->sink_eld;
 
 		pin_eld->eld_valid = false;
+
+		/* add control for custom ELD */
+		err = hdmi_create_custom_eld_ctl(codec,
+						 per_pin->pin_nid,
+						 HDA_PCM_TYPE_HDMI);
+		if (err < 0)
+			return err;
+
 		hdmi_present_sense(per_pin, 0);
 	}
 
