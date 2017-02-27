@@ -4,7 +4,7 @@
  *
  *  Copyright(c) 2008-2010 Intel Corporation. All rights reserved.
  *  Copyright (c) 2006 ATI Technologies Inc.
- *  Copyright (c) 2008 NVIDIA Corp.  All rights reserved.
+ *  Copyright (c) 2008-2017, NVIDIA CORPORATION.  All rights reserved.
  *  Copyright (c) 2008 Wei Ni <wni@nvidia.com>
  *  Copyright (c) 2013 Anssi Hannula <anssi.hannula@iki.fi>
  *
