@@ -749,7 +749,7 @@ static void __ip_do_redirect(struct rtable *rt, struct sk_buff *skb, struct flow
 	__be32 old_gw = ip_hdr(skb)->saddr;
 	struct net_device *dev = skb->dev;
 	struct in_device *in_dev;
-	struct fib_result res;
+	struct fib_result res = { 0 };
 	struct neighbour *n;
 	struct net *net;
 
@@ -1014,7 +1014,7 @@ static void __ip_rt_update_pmtu(struct rtable *rt, struct flowi4 *fl4, u32 mtu)
 {
 	struct dst_entry *dst = &rt->dst;
 	u32 old_mtu = ipv4_mtu(dst);
-	struct fib_result res;
+	struct fib_result res = { 0 };
 	bool lock = false;
 
 	if (ip_mtu_locked(dst))
@@ -1259,7 +1259,7 @@ void ip_rt_get_source(u8 *addr, struct sk_buff *skb, struct rtable *rt)
 	if (rt_is_output_route(rt))
 		src = ip_hdr(skb)->saddr;
 	else {
-		struct fib_result res;
+		struct fib_result res = { 0 };
 		struct flowi4 fl4;
 		struct iphdr *iph;
 
@@ -1865,7 +1865,7 @@ static int ip_mkroute_input(struct sk_buff *skb,
 static int ip_route_input_slow(struct sk_buff *skb, __be32 daddr, __be32 saddr,
 			       u8 tos, struct net_device *dev)
 {
-	struct fib_result res;
+	struct fib_result res = { 0 };
 	struct in_device *in_dev = __in_dev_get_rcu(dev);
 	struct ip_tunnel_info *tun_info;
 	struct flowi4	fl4;
@@ -2244,7 +2244,7 @@ struct rtable *__ip_route_output_key_hash(struct net *net, struct flowi4 *fl4,
 	struct net_device *dev_out = NULL;
 	__u8 tos = RT_FL_TOS(fl4);
 	unsigned int flags = 0;
-	struct fib_result res;
+	struct fib_result res = { 0 };
 	struct rtable *rth;
 	int orig_oif;
 	int err;
