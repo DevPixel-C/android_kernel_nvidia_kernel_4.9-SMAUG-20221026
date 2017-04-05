@@ -9074,6 +9074,9 @@ static int ixgbe_ndo_bridge_setlink(struct net_device *dev,
 	if (!br_spec)
 		return -EINVAL;
 
+	if (br_spec == NULL)
+		return -EINVAL;
+
 	nla_for_each_nested(attr, br_spec, rem) {
 		int status;
 		__u16 mode;
