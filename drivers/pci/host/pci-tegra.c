@@ -3063,7 +3063,7 @@ static int tegra_pcie_enable_msi(struct tegra_pcie *pcie, bool no_init)
 		}
 
 		/* setup AFI/FPCI range */
-		msi->pages = __get_free_pages(GFP_DMA32, 0);
+		msi->pages = __get_free_pages(GFP_DMA, 0);
 	}
 	base = virt_to_phys((void *)msi->pages);
 
