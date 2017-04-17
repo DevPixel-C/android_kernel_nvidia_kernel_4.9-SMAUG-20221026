@@ -713,6 +713,7 @@ void device_initialize(struct device *dev)
 	raw_spin_lock_init(&dev->msi_lock);
 	INIT_LIST_HEAD(&dev->msi_list);
 #endif
+	dev->no_dmabuf_defer_unmap = 0;
 }
 EXPORT_SYMBOL_GPL(device_initialize);
 
