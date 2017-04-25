@@ -45,7 +45,7 @@
 #include "hda_local.h"
 #include "hda_jack.h"
 
-#ifdef CONFIG_SND_HDA_TEGRA
+#if IS_ENABLED(CONFIG_SND_HDA_TEGRA)
 #include <video/tegra_hdmi_audio.h>
 #endif
 
@@ -200,8 +200,7 @@ struct dp_audio_infoframe {
 	u8 type; /* 0x84 */
 	u8 len;  /* 0x1b */
 	u8 ver;  /* 0x11 << 2 */
-
-#ifdef CONFIG_SND_HDA_TEGRA
+#if IS_ENABLED(CONFIG_SND_HDA_TEGRA)
 	u8 checksum;
 #endif
 	u8 CC02_CT47;	/* match with HDMI infoframe from this on */
@@ -1176,7 +1175,7 @@ static int hdmi_pcm_open(struct hda_pcm_stream *hinfo,
 
 	eld = &per_pin->sink_eld;
 
-#ifdef CONFIG_SND_HDA_TEGRA
+#if IS_ENABLED(CONFIG_SND_HDA_TEGRA)
 	if ((is_tegra21x(codec) || is_tegra_18x_sor0(codec)
 		|| is_tegra_18x_sor1(codec)) &&
 		(!eld->monitor_present || !eld->info.lpcm_sad_ready)) {
@@ -1835,7 +1834,7 @@ static int generic_hdmi_playback_pcm_prepare(struct hda_pcm_stream *hinfo,
 	per_pin->channels = substream->runtime->channels;
 	per_pin->setup = true;
 
-#ifdef CONFIG_SND_HDA_TEGRA
+#if IS_ENABLED(CONFIG_SND_HDA_TEGRA)
 	if ((is_tegra21x(codec) || is_tegra_18x_sor0(codec)
 		|| is_tegra_18x_sor1(codec))) {
 		int sor_num;
@@ -1907,7 +1906,7 @@ static int hdmi_pcm_close(struct hda_pcm_stream *hinfo,
 			goto unlock;
 		}
 		cvt_idx = cvt_nid_to_cvt_index(codec, hinfo->nid);
-#if defined(CONFIG_SND_HDA_TEGRA) && defined(CONFIG_TEGRA_DC)
+#if IS_ENABLED(CONFIG_SND_HDA_TEGRA) && IS_ENABLED(CONFIG_TEGRA_DC)
 		if (((codec)->core.vendor_id == 0x10de0020) ||
 			((codec)->core.vendor_id == 0x10de0022) ||
 			((codec)->core.vendor_id == 0x10de0028) ||
