@@ -206,28 +206,19 @@ source "drivers/hwtracing/intel_th/Kconfig"
 
 source "drivers/fpga/Kconfig"
 
-trysource "../nvgpu/drivers/gpu/nvgpu/Kconfig"
 trysource "../nvgpu/drivers/gpu/nvgpu/Kconfig.nvgpu"
 trysource "drivers/gpu/nvgpu/Kconfig.nvgpu"
 
-trysource "../nvhost-t18x/drivers/video/tegra/host/Kconfig"
-trysource "../nvhost-t18x/drivers/video/tegra/host/Kconfig.nvhost-t18x"
-trysource "drivers/video/tegra/host/Kconfig.nvhost-t18x"
+trysource "../nvidia/drivers/video/tegra/host/Kconfig.nvidia"
+trysource "drivers/video/tegra/host/Kconfig.nvidia"
 
-trysource "../t18x/drivers/tachometer/Kconfig"
-trysource "../t18x/drivers/tachometer/Kconfig.t18x"
-trysource "drivers/tachometer/Kconfig.t18x"
+trysource "../nvidia/drivers/tachometer/Kconfig.nvidia"
+trysource "drivers/tachometer/Kconfig.nvidia"
 
-trysource "../t18x/drivers/misc/csi_mipi_cal/Kconfig"
-trysource "../t18x/drivers/misc/csi_mipi_cal/Kconfig.t18x"
-trysource "drivers/misc/csi_mipi_cal/Kconfig.t18x"
+trysource "../nvidia/drivers/misc/csi_mipi_cal/Kconfig.nvidia"
+trysource "drivers/misc/csi_mipi_cal/Kconfig.nvidia"
 
-trysource "../t18x/drivers/misc/tegra186-ahc/Kconfig"
-trysource "../t18x/drivers/misc/tegra186-ahc/Kconfig.t18x"
-trysource "drivers/misc/tegra186-ahc/Kconfig.t18x"
-
-trysource "../nvhost-t19x/drivers/video/tegra/host/Kconfig"
-trysource "../nvhost-t19x/drivers/video/tegra/host/Kconfig.nvhost-t19x"
-trysource "drivers/video/tegra/host/Kconfig.nvhost-t19x"
+trysource "../nvidia/drivers/misc/tegra186-ahc/Kconfig.nvidia"
+trysource "drivers/misc/tegra186-ahc/Kconfig.nvidia"
 
 endmenu

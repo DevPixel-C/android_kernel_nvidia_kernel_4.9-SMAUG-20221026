@@ -180,11 +180,6 @@ obj-$(CONFIG_NVMEM)		+= nvmem/
 obj-$(CONFIG_FPGA)		+= fpga/
 obj-$(CONFIG_NVPMODEL_EMC)	+= nvpmodel/
 
-# The wildcard hack is necessary for kernel's make clean.
-ifneq ($(wildcard $(srctree)/../t18x/drivers/Makefile.*),)
-obj-$(CONFIG_ARCH_TEGRA_18x_SOC) += ../../t18x/drivers/
-endif
-
-ifneq ($(wildcard $(srctree)/../t19x/drivers/Makefile.*),)
-obj-$(CONFIG_ARCH_TEGRA_19x_SOC) += ../../t19x/drivers/
+ifneq ($(wildcard $(srctree)/../nvidia/drivers/Makefile.*),)
+obj-$(CONFIG_ARCH_TEGRA_18x_SOC) += ../../nvidia/drivers/
 endif
