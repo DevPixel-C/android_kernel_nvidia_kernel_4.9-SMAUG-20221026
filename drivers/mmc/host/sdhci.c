@@ -1481,9 +1481,7 @@ void sdhci_set_clock(struct sdhci_host *host, unsigned int clock)
 			return;
 		}
 		timeout--;
-		spin_unlock_irq(&host->lock);
-		usleep_range(900, 1100);
-		spin_lock_irq(&host->lock);
+		mdelay(1);
 	}
 
 	clk |= SDHCI_CLOCK_CARD_EN;
