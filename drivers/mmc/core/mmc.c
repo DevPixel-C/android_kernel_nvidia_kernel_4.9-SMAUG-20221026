@@ -1390,6 +1390,8 @@ int mmc_hs400_to_ddr(struct mmc_card *card)
 	max_dtr = card->ext_csd.hs_max_dtr;
 	mmc_set_clock(host, max_dtr);
 
+	mmc_set_timing(host, MMC_TIMING_MMC_DDR52);
+
 	/* Switch HS400 to HS DDR */
 	err = __mmc_switch(card, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_HS_TIMING,
 			   EXT_CSD_TIMING_HS, card->ext_csd.generic_cmd6_time,
@@ -1399,8 +1401,6 @@ int mmc_hs400_to_ddr(struct mmc_card *card)
 			mmc_hostname(card->host), err);
 		return err;
 	}
-
-	mmc_set_timing(host, MMC_TIMING_MMC_DDR52);
 
 	return 0;
 
@@ -1446,6 +1446,8 @@ int mmc_hs400_to_hs200(struct mmc_card *card)
 	max_dtr = card->ext_csd.hs_max_dtr;
 	mmc_set_clock(host, max_dtr);
 
+	mmc_set_timing(host, MMC_TIMING_MMC_DDR52);
+
 	/* Switch HS400 to HS DDR */
 	val = EXT_CSD_TIMING_HS;
 	err = __mmc_switch(card, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_HS_TIMING,
@@ -1454,11 +1456,11 @@ int mmc_hs400_to_hs200(struct mmc_card *card)
 	if (err)
 		goto out_err;
 
-	mmc_set_timing(host, MMC_TIMING_MMC_DDR52);
-
-	err = mmc_switch_status(card);
-	if (err)
-		goto out_err;
+	if (!send_status) {
+		err = mmc_switch_status(card);
+		if (err)
+			goto out_err;
+	}
 
 	/* Switch HS DDR to HS */
 	err = __mmc_switch(card, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_BUS_WIDTH,
