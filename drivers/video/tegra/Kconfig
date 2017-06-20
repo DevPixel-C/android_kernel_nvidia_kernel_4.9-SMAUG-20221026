@@ -8,8 +8,8 @@ trysource "../nvidia/drivers/video/tegra/Kconfig.nvidia"
 
 if PLATFORM_TEGRA
 
-trysource "../display/drivers/video/tegra/Kconfig.display"
-trysource "drivers/video/tegra/Kconfig.display"
+trysource "../nvidia/drivers/video/tegra/Kconfig.nvidia"
+trysource "drivers/video/tegra/Kconfig.nvidia"
 
 config TEGRA_DC
 	tristate "Tegra Display Contoller"
