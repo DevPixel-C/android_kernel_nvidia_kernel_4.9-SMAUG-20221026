@@ -1,13 +1,8 @@
-trysource "../nvidia/drivers/video/tegra/nvmap/Kconfig"
 trysource "../nvidia/drivers/video/tegra/nvmap/Kconfig.nvidia"
-trysource "drivers/video/tegra/nvmap/Kconfig.nvidia"
-
-trysource "../nvidia/drivers/video/tegra/Kconfig.nvidia"
 
 if PLATFORM_TEGRA
 
 trysource "../nvidia/drivers/video/tegra/Kconfig.nvidia"
-trysource "drivers/video/tegra/Kconfig.nvidia"
 
 config TEGRA_DC
 	tristate "Tegra Display Contoller"

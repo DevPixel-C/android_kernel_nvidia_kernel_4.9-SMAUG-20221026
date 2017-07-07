@@ -1690,5 +1690,4 @@ config SERIAL_MCTRL_GPIO
 	tristate
 
 trysource "../nvidia/drivers/tty/serial/Kconfig.nvidia"
-trysource "drivers/tty/serial/Kconfig.nvidia"
 endif # TTY
