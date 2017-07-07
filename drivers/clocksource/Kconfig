@@ -331,6 +331,5 @@ config CLKSRC_ST_LPC
 	  as clocksource.
 
 trysource "../nvidia/drivers/clocksource/Kconfig.nvidia"
-trysource "drivers/clocksource/Kconfig.nvidia"
 
 endmenu

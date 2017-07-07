@@ -586,6 +586,5 @@ config DMA_ENGINE_RAID
 	bool
 
 trysource "../nvidia/drivers/dma/Kconfig.nvidia"
-trysource "drivers/dma/Kconfig.nvidia"
 
 endif

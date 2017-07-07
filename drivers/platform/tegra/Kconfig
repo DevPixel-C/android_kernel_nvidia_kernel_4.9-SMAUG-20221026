@@ -239,4 +239,3 @@ config TEGRA_SAFETY_SCE
 	  character device which will be used by other safety modules.
 
 trysource "../nvidia/drivers/platform/tegra/Kconfig.nvidia"
-trysource "drivers/platform/tegra/Kconfig.nvidia"

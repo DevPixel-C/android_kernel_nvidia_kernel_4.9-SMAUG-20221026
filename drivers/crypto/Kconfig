@@ -370,10 +370,8 @@ config TEGRA_CRYPTO_DEV
 	  hardware from user space
 
 trysource "../nvidia/drivers/crypto/Kconfig.nvidia"
-trysource "drivers/crypto/Kconfig.nvidia"
 
 trysource "../nvidia/drivers/crypto/elliptic/Kconfig.nvidia"
-trysource "drivers/crypto/elliptic/Kconfig.nvidia"
 
 
 config CRYPTO_DEV_NX
