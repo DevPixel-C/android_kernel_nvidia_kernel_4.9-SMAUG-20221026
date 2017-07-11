@@ -13,5 +13,3 @@ obj-$(CONFIG_IIO_ST_ACCEL_SPI_3AXIS) += st_accel_spi.o
 
 obj-$(CONFIG_KXSD9)	+= kxsd9.o
 
-obj-$(CONFIG_NVS_AIS328DQ) += nvs_ais328dq.o
-
