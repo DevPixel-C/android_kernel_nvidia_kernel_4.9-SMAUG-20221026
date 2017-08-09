@@ -1516,7 +1516,10 @@ static int tegra_xusb_phy_enable(struct tegra_xusb *tegra)
 			continue;
 		err = phy_power_on(tegra->cdp_ext_phys[j]);
 		if (err) {
+			dev_err(tegra->dev, "phy_power_on failed");
 			err = phy_exit(tegra->cdp_ext_phys[j]);
+			if (err)
+				dev_err(tegra->dev, "phy_exit failed");
 		}
 	}
 
