@@ -318,6 +318,8 @@ struct tegra_xusb_soc {
 	u8 vf_id;
 
 	bool lpm_support;
+
+	bool handle_oc;
 };
 
 struct tegra_xhci_ipfs_context {
@@ -437,6 +439,8 @@ struct tegra_xusb {
 	u8 *connected_usb2_ports; /* keep track of connected UTMI ports */
 	bool cdp_enabled;
 	bool cdp_internal;
+
+	struct work_struct oc_work;
 };
 
 static int tegra_xhci_hcd_reinit(struct usb_hcd *hcd);
@@ -1393,6 +1397,25 @@ static void tegra_xusb_config(struct tegra_xusb *tegra)
 static irqreturn_t tegra_xusb_padctl_irq(int irq, void *data)
 {
 	struct tegra_xusb *tegra = data;
+	int i;
+	bool oc = false;
+
+	if (tegra->soc->handle_oc) {
+		for (i = 0; i < tegra->soc->num_typed_phys[USB2_PHY]; i++) {
+			if (tegra_xusb_padctl_overcurrent_detected(
+				tegra->padctl,
+				tegra->typed_phys[USB2_PHY][i]) > 0) {
+				dev_warn(tegra->dev,
+					"port %d over-current detected\n", i);
+				oc = true;
+				break;
+			}
+		}
+
+		/* call padctl API to clear OC condition */
+		if (oc)
+			schedule_work(&tegra->oc_work);
+	}
 
 	pm_runtime_resume(tegra->dev);
 
@@ -2269,6 +2292,15 @@ static int fpga_clock_hacks(struct platform_device *pdev)
 	return 0;
 }
 
+static void tegra_xhci_oc_work(struct work_struct *work)
+{
+	struct tegra_xusb *tegra = container_of(work, struct tegra_xusb,
+						oc_work);
+
+	/* it will check every UTMI lanes to handle overcurrent events */
+	tegra_xusb_padctl_handle_overcurrent(tegra->padctl);
+}
+
 static int tegra_xusb_probe(struct platform_device *pdev)
 {
 	struct resource *res, *regs;
@@ -2519,6 +2551,9 @@ static int tegra_xusb_probe(struct platform_device *pdev)
 		}
 	}
 
+	if (tegra->soc->handle_oc)
+		INIT_WORK(&tegra->oc_work, tegra_xhci_oc_work);
+
 	/* TODO: look up dtb */
 	device_init_wakeup(tegra->dev, true);
 
@@ -2553,6 +2588,9 @@ put_padctl:
 static int tegra_xusb_remove(struct platform_device *pdev)
 {
 	struct tegra_xusb *tegra = platform_get_drvdata(pdev);
+
+	if (tegra->soc->handle_oc)
+		cancel_work_sync(&tegra->oc_work);
 
 	if (!tegra->soc->is_xhci_vf)
 		cancel_delayed_work_sync(&tegra->firmware_retry_work);
@@ -3079,6 +3117,9 @@ static int tegra_xusb_suspend(struct device *dev)
 	if (!tegra->fw_loaded && !tegra->soc->is_xhci_vf)
 		return 0;
 
+	if (tegra->soc->handle_oc)
+		flush_work(&tegra->oc_work);
+
 	mutex_lock(&tegra->lock);
 
 	if (pm_runtime_suspended(dev)) {
@@ -3281,6 +3322,7 @@ static const struct tegra_xusb_soc tegra124_soc = {
 	.scale_ss_clock = true,
 	.has_ipfs = true,
 	.ss_lfps_detector_war = false,
+	.handle_oc = false,
 };
 MODULE_FIRMWARE("nvidia/tegra124/xusb.bin");
 
@@ -3319,6 +3361,7 @@ static const struct tegra_xusb_soc tegra210_soc = {
 	.scale_ss_clock = false,
 	.has_ipfs = true,
 	.ss_lfps_detector_war = true,
+	.handle_oc = false,
 };
 MODULE_FIRMWARE("nvidia/tegra210/xusb.bin");
 
@@ -3349,6 +3392,7 @@ static const struct tegra_xusb_soc tegra186_soc = {
 	.scale_ss_clock = false,
 	.has_ipfs = false,
 	.ss_lfps_detector_war = false,
+	.handle_oc = true,
 };
 MODULE_FIRMWARE("tegra18x_xusb_firmware");
 
@@ -3378,6 +3422,7 @@ static const struct tegra_xusb_soc tegra194_soc = {
 	.scale_ss_clock = false,
 	.has_ipfs = false,
 	.ss_lfps_detector_war = false,
+	.handle_oc = false,
 };
 MODULE_FIRMWARE("tegra19x_xusb_firmware");
 
@@ -3406,6 +3451,7 @@ static const struct tegra_xusb_soc tegra194_vf1_soc = {
 	.scale_ss_clock = false,
 	.has_ipfs = false,
 	.ss_lfps_detector_war = false,
+	.handle_oc = false,
 };
 MODULE_FIRMWARE("tegra19x_xusb_firmware");
 
@@ -3434,6 +3480,7 @@ static const struct tegra_xusb_soc tegra194_vf2_soc = {
 	.scale_ss_clock = false,
 	.has_ipfs = false,
 	.ss_lfps_detector_war = false,
+	.handle_oc = false,
 };
 MODULE_FIRMWARE("tegra19x_xusb_firmware");
 
