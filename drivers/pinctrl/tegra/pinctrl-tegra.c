@@ -132,6 +132,7 @@ static const struct cfg_param {
 	{"nvidia,rfu-in",		TEGRA_PINCONF_PARAM_RFU_IN},
 	{"nvidia,special-function",	TEGRA_PINCONF_PARAM_GPIO_MODE},
 	{"nvidia,pad-power",		TEGRA_PINCONF_PARAM_PAD_POWER},
+	{"nvidia,func",			TEGRA_PINCONF_PARAM_FUNCTION},
 };
 
 static int tegra_pinctrl_dt_subnode_to_map(struct pinctrl_dev *pctldev,
@@ -578,6 +579,12 @@ static int tegra_pinconf_reg(struct tegra_pmx *pmx,
 		*bit = g->pad_bit;
 		*width = 1;
 		break;
+	case TEGRA_PINCONF_PARAM_FUNCTION:
+		*bank = g->mux_bank;
+		*reg = g->mux_reg;
+		*bit = g->mux_bit;
+		*width = 2;
+		break;
 	default:
 		dev_err(pmx->dev, "Invalid config param %04x\n", param);
 		return -ENOTSUPP;
@@ -728,6 +735,7 @@ static void tegra_pinconf_group_dbg_show(struct pinctrl_dev *pctldev,
 	s8 bank, bit, width;
 	s32 reg;
 	u32 val;
+	u8 idx;
 
 	g = &pmx->soc->groups[group];
 
@@ -740,9 +748,15 @@ static void tegra_pinconf_group_dbg_show(struct pinctrl_dev *pctldev,
 		val = pmx_readl(pmx, bank, reg);
 		val >>= bit;
 		val &= (1 << width) - 1;
-
-		seq_printf(s, "\n\t%s=%u",
+		if (cfg_params[i].param == TEGRA_PINCONF_PARAM_FUNCTION) {
+			idx = pmx->soc->groups[group].funcs[val];
+			seq_printf(s, "\n\t%s=%s",
+			   strip_prefix(cfg_params[i].property),
+					 pmx->soc->functions[idx].name);
+		} else {
+			seq_printf(s, "\n\t%s=%u",
 			   strip_prefix(cfg_params[i].property), val);
+		}
 	}
 }
 
