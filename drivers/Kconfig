@@ -206,14 +206,4 @@ source "drivers/hwtracing/intel_th/Kconfig"
 
 source "drivers/fpga/Kconfig"
 
-trysource "../nvgpu/drivers/gpu/nvgpu/Kconfig.nvgpu"
-
-trysource "../nvidia/drivers/video/tegra/host/Kconfig.nvidia"
-
-trysource "../nvidia/drivers/tachometer/Kconfig.nvidia"
-
-trysource "../nvidia/drivers/misc/csi_mipi_cal/Kconfig.nvidia"
-
-trysource "../nvidia/drivers/misc/tegra186-ahc/Kconfig.nvidia"
-
 endmenu

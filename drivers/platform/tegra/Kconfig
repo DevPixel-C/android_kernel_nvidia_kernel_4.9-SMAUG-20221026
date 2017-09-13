@@ -237,5 +237,3 @@ config TEGRA_SAFETY_SCE
 	  This enables communication between CCPLEX and SCE over IVC channel.
 	  This also provides a userspace command response interface as
 	  character device which will be used by other safety modules.
-
-trysource "../nvidia/drivers/platform/tegra/Kconfig.nvidia"

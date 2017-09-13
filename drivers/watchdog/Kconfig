@@ -1,4 +1,3 @@
-
 #
 # Watchdog device configuration
 #
@@ -1659,5 +1658,4 @@ config USBPCWATCHDOG
 
 	  Most people will say N.
 
-trysource "../nvidia/drivers/watchdog/Kconfig.nvidia"
 endif # WATCHDOG

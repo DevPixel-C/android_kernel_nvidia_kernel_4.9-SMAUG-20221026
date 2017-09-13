@@ -1,5 +1,3 @@
-trysource "../nvhost/drivers/video/tegra/Kconfig.nvhost"
-
 config TEGRA_GRHOST_SYNC
 	depends on TEGRA_GRHOST || TEGRA_HOST1X
 	bool "Tegra host synchronization objects"
@@ -8,8 +6,6 @@ config TEGRA_GRHOST_SYNC
 	help
 	  Add tegra host backend for the cross driver synchronization framework.
 	  Allows creating sync fence file descriptors from Tegra host syncpoints.
-
-trysource "../nvidia/drivers/video/tegra/nvmap/Kconfig.nvidia"
 
 if ARCH_TEGRA
 
@@ -30,10 +26,6 @@ config TEGRA_DC
 	  Tegra display controller support.
 	  Enable this to access the Tegra display controller using either framebuffer
 	  console interface and a proprietary dc-ext interface or with ADF.
-
-trysource ../display/drivers/video/tegra/Kconfig
-trysource "../display/drivers/video/tegra/Kconfig.display"
-trysource "drivers/video/tegra/Kconfig.display"
 
 config TEGRA_CAMERA_PLATFORM
 	bool "Enable tegra camera platform driver"

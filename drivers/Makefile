@@ -179,7 +179,3 @@ obj-$(CONFIG_ANDROID)		+= android/
 obj-$(CONFIG_NVMEM)		+= nvmem/
 obj-$(CONFIG_FPGA)		+= fpga/
 obj-$(CONFIG_NVPMODEL_EMC)	+= nvpmodel/
-
-ifneq ($(wildcard $(srctree)/../nvidia/drivers/Makefile.*),)
-obj-$(CONFIG_ARCH_TEGRA_18x_SOC) += ../../nvidia/drivers/
-endif
