@@ -1228,6 +1228,4 @@ config GPIO_VIPERBOARD
 
 endmenu
 
-trysource "../nvidia/drivers/gpio/Kconfig.nvidia"
-
 endif

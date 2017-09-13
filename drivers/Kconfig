@@ -208,9 +208,4 @@ source "drivers/fpga/Kconfig"
 
 source "drivers/tee/Kconfig"
 
-trysource "../nvidia/drivers/staging/mttcan/Kconfig.nvidia"
-
-trysource "../nvgpu/drivers/gpu/nvgpu/Kconfig.nvgpu"
-
-
 endmenu
