@@ -2845,6 +2845,7 @@ video_usercopy(struct file *file, unsigned int cmd, unsigned long arg,
 	size_t  array_size = 0;
 	void __user *user_ptr = NULL;
 	void	**kernel_ptr = NULL;
+	mm_segment_t old_fs = get_fs();
 
 	/*  Copy arguments into temp kernel buffer  */
 	if (_IOC_DIR(cmd) != _IOC_NONE) {
@@ -2898,8 +2899,18 @@ video_usercopy(struct file *file, unsigned int cmd, unsigned long arg,
 		if (array_buf == NULL)
 			goto out_array_args;
 		err = -EFAULT;
-		if (copy_from_user(array_buf, user_ptr, array_size))
+		/* during 32-bit userspace app to 64-bit kernel conversion,
+		 * v4l2 core driver prepare kernel space memory for pass-in
+		 * arg and user space memory for array inside, set fs to
+		 * KERNEL_DS and call native_ioctl here. So set it back to
+		 * USER_DS for user space copy to avoid break access policy.
+		 */
+		set_fs(USER_DS);
+		if (copy_from_user(array_buf, user_ptr, array_size)) {
+			set_fs(old_fs);
 			goto out_array_args;
+		}
+		set_fs(old_fs);
 		*kernel_ptr = array_buf;
 	}
 
@@ -2919,8 +2930,10 @@ video_usercopy(struct file *file, unsigned int cmd, unsigned long arg,
 
 	if (has_array_args) {
 		*kernel_ptr = (void __force *)user_ptr;
+		set_fs(USER_DS);
 		if (copy_to_user(user_ptr, array_buf, array_size))
 			err = -EFAULT;
+		set_fs(old_fs);
 		goto out_array_args;
 	}
 	/* VIDIOC_QUERY_DV_TIMINGS can return an error, but still have valid
