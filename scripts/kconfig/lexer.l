@@ -94,6 +94,8 @@ n	[A-Za-z0-9_-]
 \n			return T_EOL;
 "allnoconfig_y"		return T_ALLNOCONFIG_Y;
 "bool"			return T_BOOL;
+"append_choice"		return T_APPEND_CHOICE;
+"append_menu"		return T_APPEND_MENU;
 "choice"		return T_CHOICE;
 "comment"		return T_COMMENT;
 "config"		return T_CONFIG;
