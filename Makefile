@@ -1,4 +1,14 @@
 # SPDX-License-Identifier: GPL-2.0
+ifeq ($(KERNEL_OVERLAYS),)
+KERNEL_OVERLAYS :=
+KERNEL_OVERLAYS += $(CURDIR)/../nvidia
+KERNEL_OVERLAYS += $(CURDIR)/../nvgpu
+else
+override KERNEL_OVERLAYS := $(subst :, ,$(KERNEL_OVERLAYS))
+endif
+override KERNEL_OVERLAYS := $(abspath $(KERNEL_OVERLAYS))
+export KERNEL_OVERLAYS
+
 VERSION = 5
 PATCHLEVEL = 4
 SUBLEVEL = 147
@@ -329,6 +339,9 @@ __build_one_by_one:
 	done
 
 else # !mixed-build
+
+VPATH		:= $(srctree)$(if $(KBUILD_EXTMOD),:$(KBUILD_EXTMOD))
+VPATH		+= $(foreach overlay,$(KERNEL_OVERLAYS),:$(overlay))
 
 include scripts/Kbuild.include
 
