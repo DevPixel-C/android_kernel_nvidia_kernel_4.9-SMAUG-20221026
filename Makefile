@@ -10,6 +10,13 @@ endif
 override KERNEL_OVERLAYS := $(abspath $(KERNEL_OVERLAYS))
 export KERNEL_OVERLAYS
 
+define set_srctree_overlay
+  overlay_name := $(lastword $(subst /, ,$(overlay)))
+  srctree.$(overlay_name) := $(overlay)
+  export srctree.$(overlay_name)
+endef
+$(foreach overlay,$(KERNEL_OVERLAYS),$(eval $(value set_srctree_overlay)))
+
 VERSION = 3
 PATCHLEVEL = 10
 SUBLEVEL = 96
