@@ -104,13 +104,6 @@ config TEGRA_BOOTLOADER_DEBUG
 	  tegra_bootloader_verify_regs and tegra_bootloader_prof
 	  files in tegra_bootloader debugfs entry.
 
-config TEGRA_BPMP_SCLK_SKIP
-	bool "Let bpmp firmware own the sclk skipper h/w"
-	depends on TEGRA_BPMP && ARCH_TEGRA_21x_SOC
-	default n
-	help
-	  When enabled, sclk skipper set rate will be delegated to bpmp firmware
-
 config TEGRA_CBUS_CAN_USE_SKIPPERS
 	bool "Allow to use clock skippers on cbus users"
 	depends on ARCH_TEGRA_21x_SOC
