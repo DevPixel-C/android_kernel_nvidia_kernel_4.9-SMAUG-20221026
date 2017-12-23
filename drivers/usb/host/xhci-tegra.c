@@ -1995,7 +1995,7 @@ static bool is_host_mode_phy(struct tegra_xusb *tegra,
 
 static void tegra_xhci_set_host_mode(struct tegra_xusb *tegra, bool on)
 {
-	struct xhci_hcd *xhci = hcd_to_xhci(tegra->hcd);
+	struct xhci_hcd *xhci;
 	int port = tegra->usb2_otg_port_base_1 - 1;
 	struct phy *otg_phy;
 	u32 status;
@@ -2004,8 +2004,12 @@ static void tegra_xhci_set_host_mode(struct tegra_xusb *tegra, bool on)
 	if (!tegra->usb2_otg_port_base_1)
 		return;
 
-	if ((!tegra->fw_loaded && !tegra->soc->is_xhci_vf) ||
-		(xhci->recovery_in_progress == true))
+	if (!tegra->fw_loaded && !tegra->soc->is_xhci_vf)
+		return;
+
+	xhci = hcd_to_xhci(tegra->hcd);
+
+	if (xhci->recovery_in_progress == true)
 		return;
 
 	mutex_lock(&tegra->lock);
@@ -3500,12 +3504,16 @@ static inline int set_cdp_enable(struct tegra_xusb *tegra,
 static int tegra_xusb_suspend(struct device *dev)
 {
 	struct tegra_xusb *tegra = dev_get_drvdata(dev);
-	struct xhci_hcd *xhci = hcd_to_xhci(tegra->hcd);
+	struct xhci_hcd *xhci;
 	int ret;
 	unsigned int j;
 
-	if ((!tegra->fw_loaded && !tegra->soc->is_xhci_vf) ||
-		(xhci->recovery_in_progress == true))
+	if (!tegra->fw_loaded && !tegra->soc->is_xhci_vf)
+		return 0;
+
+	xhci = hcd_to_xhci(tegra->hcd);
+
+	if (xhci->recovery_in_progress == true)
 		return 0;
 
 	if (tegra->soc->handle_oc)
@@ -3602,12 +3610,15 @@ static int tegra_xhci_resume_common(struct device *dev)
 static int tegra_xhci_resume_noirq(struct device *dev)
 {
 	struct tegra_xusb *tegra = dev_get_drvdata(dev);
-	struct xhci_hcd *xhci = hcd_to_xhci(tegra->hcd);
+	struct xhci_hcd *xhci;
 
-	if ((!tegra->fw_loaded && !tegra->soc->is_xhci_vf) ||
-		(xhci->recovery_in_progress == true))
+	if (!tegra->fw_loaded && !tegra->soc->is_xhci_vf)
 		return 0;
 
+	xhci = hcd_to_xhci(tegra->hcd);
+
+	if (xhci->recovery_in_progress == true)
+		return 0;
 	/*
 	 * when CDP is enabled, VBUS will be off in SC7 and re-enabled in SC7
 	 * resume. We don't have to resume earlier in noirq callback here
@@ -3624,11 +3635,15 @@ static int tegra_xhci_resume_noirq(struct device *dev)
 static int tegra_xhci_resume(struct device *dev)
 {
 	struct tegra_xusb *tegra = dev_get_drvdata(dev);
-	struct xhci_hcd *xhci = hcd_to_xhci(tegra->hcd);
+	struct xhci_hcd *xhci;
 	int ret;
 
-	if ((!tegra->fw_loaded && !tegra->soc->is_xhci_vf) ||
-		(xhci->recovery_in_progress == true))
+	if (!tegra->fw_loaded && !tegra->soc->is_xhci_vf)
+		return 0;
+
+	xhci = hcd_to_xhci(tegra->hcd);
+
+	if (xhci->recovery_in_progress == true)
 		return 0;
 
 	ret = tegra_xhci_resume_common(dev);
@@ -3646,12 +3661,15 @@ static int tegra_xhci_resume(struct device *dev)
 static int tegra_xhci_runtime_suspend(struct device *dev)
 {
 	struct tegra_xusb *tegra = dev_get_drvdata(dev);
-	struct xhci_hcd *xhci = hcd_to_xhci(tegra->hcd);
+	struct xhci_hcd *xhci;
 	int ret;
 
-	if ((!tegra->fw_loaded && !tegra->soc->is_xhci_vf) ||
-		(xhci->recovery_in_progress == true) ||
-		tegra->soc->disable_elpg)
+	if (!tegra->fw_loaded && !tegra->soc->is_xhci_vf)
+		return 0;
+
+	xhci = hcd_to_xhci(tegra->hcd);
+
+	if (xhci->recovery_in_progress == true)
 		return 0;
 
 	mutex_lock(&tegra->lock);
@@ -3664,12 +3682,15 @@ static int tegra_xhci_runtime_suspend(struct device *dev)
 static int tegra_xhci_runtime_resume(struct device *dev)
 {
 	struct tegra_xusb *tegra = dev_get_drvdata(dev);
-	struct xhci_hcd *xhci = hcd_to_xhci(tegra->hcd);
+	struct xhci_hcd *xhci;
 	int ret;
 
-	if ((!tegra->fw_loaded && !tegra->soc->is_xhci_vf) ||
-		(xhci->recovery_in_progress == true) ||
-		tegra->soc->disable_elpg)
+	if (!tegra->fw_loaded && !tegra->soc->is_xhci_vf)
+		return 0;
+
+	xhci = hcd_to_xhci(tegra->hcd);
+
+	if (xhci->recovery_in_progress == true)
 		return 0;
 
 	mutex_lock(&tegra->lock);
