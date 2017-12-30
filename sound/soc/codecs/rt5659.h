@@ -1812,6 +1812,9 @@ struct rt5659_priv {
 
 	int jack_type;
 
+	/* for intel HD header */
+	bool hp_state;
+
 };
 
 int rt5659_set_jack_detect(struct snd_soc_codec *codec,
