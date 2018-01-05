@@ -154,7 +154,7 @@ static void __apply_alternatives(void *alt_region)
 
 		alt_cb(alt, origptr, origptr, nr_inst);
 
-		flush_icache_range((uintptr_t)origptr,
+		flush_cache_kernel_range((uintptr_t)origptr,
 				   (uintptr_t)(origptr + nr_inst));
 	}
 }
