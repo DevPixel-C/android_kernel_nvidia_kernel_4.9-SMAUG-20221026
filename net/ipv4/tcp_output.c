@@ -1019,7 +1019,7 @@ static int __tcp_transmit_skb(struct sock *sk, struct sk_buff *skb,
 		if (tcp_window_divisor > 1) {
 			unsigned short window = ntohs(th->window);
 			pr_debug("%s: skb %p len %d window %hu"
-				" scale %d tp->rcv_wnd %lu\n",
+				" scale %d tp->rcv_wnd %u\n",
 				__func__, skb, skb->len, window,
 				tp->rx_opt.rcv_wscale, tp->rcv_wnd);
 			window /= tcp_window_divisor;
