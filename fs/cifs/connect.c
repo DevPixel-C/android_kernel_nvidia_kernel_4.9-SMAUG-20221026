@@ -57,6 +57,10 @@
 #include "smb2proto.h"
 #endif
 
+#ifdef CONFIG_CIFS_SYSFS
+#include "sysfs.h"
+#endif
+
 #define CIFS_PORT 445
 #define RFC1001_PORT 139
 
@@ -389,6 +393,9 @@ cifs_reconnect(struct TCP_Server_Info *server)
 #endif
 
 	cifs_dbg(FYI, "Reconnecting tcp session\n");
+#ifdef CONFIG_CIFS_SYSFS
+	cifs_sysfs_notify_change(server->hostname, RECONNECTING);
+#endif
 
 	/* before reconnecting the tcp session, mark the smb session (uid)
 		and the tid bad so they are not used until reconnected */
@@ -461,6 +468,9 @@ cifs_reconnect(struct TCP_Server_Info *server)
 			mutex_unlock(&server->srv_mutex);
 			msleep(3000);
 		} else {
+#ifdef CONFIG_CIFS_SYSFS
+			cifs_sysfs_notify_change(server->hostname, RECONNECTED);
+#endif
 			atomic_inc(&tcpSesReconnectCount);
 			spin_lock(&GlobalMid_Lock);
 			if (server->tcpStatus != CifsExiting)
@@ -2747,6 +2757,9 @@ cifs_put_tcon(struct cifs_tcon *tcon)
 		ses->server->ops->tree_disconnect(xid, tcon);
 	_free_xid(xid);
 
+#ifdef CONFIG_CIFS_SYSFS
+	cifs_sysfs_notify_change(tcon->treeName, DISCONNECTED);
+#endif
 	cifs_fscache_release_super_cookie(tcon);
 	tconInfoFree(tcon);
 	cifs_put_smb_ses(ses);
@@ -2799,6 +2812,10 @@ cifs_get_tcon(struct cifs_ses *ses, struct smb_vol *volume_info)
 	cifs_dbg(FYI, "Tcon rc = %d\n", rc);
 	if (rc)
 		goto out_fail;
+
+#ifdef CONFIG_CIFS_SYSFS
+	cifs_sysfs_notify_change(tcon->treeName, CONNECTED);
+#endif
 
 	if (volume_info->nodfs) {
 		tcon->Flags &= ~SMB_SHARE_IS_IN_DFS;
