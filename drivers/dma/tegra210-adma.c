@@ -60,8 +60,7 @@
 #define ADMA_CH_CONFIG_SRC_BUF(val)			(((val) & 0x7) << 28)
 #define ADMA_CH_CONFIG_TRG_BUF(val)			(((val) & 0x7) << 24)
 #define ADMA_CH_CONFIG_BURST_SIZE_SHIFT				20
-#define T210_ADMA_CH_CONFIG_BURST_SIZE_MASK			0x07
-#define T186_ADMA_CH_CONFIG_BURST_SIZE_MASK			15
+#define ADMA_CH_CONFIG_MAX_BURST_SIZE				16
 
 #define ADMA_CH_CONFIG_WEIGHT_FOR_WRR(val)		((val) & 0xf)
 #define ADMA_CH_CONFIG_MAX_BUFS					8
@@ -183,10 +182,9 @@ struct tegra_adma_chip_data {
 	struct tegra_adma_war adma_war;
 	int (*tegra_adast_init)(struct platform_device *pdev,
 			void __iomem *adast_addr);
-	unsigned int max_burst_words;
+	unsigned int (*adma_get_burst_config)(unsigned int burst_size);
 	const struct tegra_chan_masks tx_request;
 	const struct tegra_chan_masks rx_request;
-	const struct tegra_chan_masks burst_size;
 	const struct tegra_chan_masks tx_fifo;
 	const struct tegra_chan_masks rx_fifo;
 };
@@ -832,6 +830,22 @@ static enum dma_status tegra_adma_tx_status(struct dma_chan *dc,
 	return ret;
 }
 
+static unsigned int tegra210_adma_get_burst_config(unsigned int burst_size)
+{
+	if (!burst_size || burst_size > ADMA_CH_CONFIG_MAX_BURST_SIZE)
+		burst_size = ADMA_CH_CONFIG_MAX_BURST_SIZE;
+
+	return fls(burst_size) << ADMA_CH_CONFIG_BURST_SIZE_SHIFT;
+}
+
+static unsigned int tegra186_adma_get_burst_config(unsigned int burst_size)
+{
+	if (!burst_size || burst_size > ADMA_CH_CONFIG_MAX_BURST_SIZE)
+		burst_size = ADMA_CH_CONFIG_MAX_BURST_SIZE;
+
+	return (burst_size - 1) << ADMA_CH_CONFIG_BURST_SIZE_SHIFT;
+}
+
 static int tegra_adma_set_xfer_params(struct tegra_adma_chan *tdc,
 				      struct tegra_adma_desc *desc,
 				      dma_addr_t buf_addr,
@@ -839,7 +853,6 @@ static int tegra_adma_set_xfer_params(struct tegra_adma_chan *tdc,
 {
 	struct tegra_adma_chan_regs *ch_regs = &desc->ch_regs;
 	const struct tegra_adma_chip_data *chip_data = tdc->tdma->chip_data;
-	unsigned int max_burst_words = chip_data->burst_size.max;
 	unsigned int fifo_ctrl = ADMA_CH_FIFO_CTRL_DEFAULT;
 	unsigned int burst_size, adma_dir;
 
@@ -849,7 +862,7 @@ static int tegra_adma_set_xfer_params(struct tegra_adma_chan *tdc,
 	switch (direction) {
 	case DMA_MEM_TO_DEV:
 		adma_dir = ADMA_CH_CTRL_DIR_MEM2AHUB;
-		burst_size = fls(tdc->sconfig.dst_maxburst);
+		burst_size = tdc->sconfig.dst_maxburst;
 		ch_regs->config = ADMA_CH_CONFIG_SRC_BUF(desc->num_periods - 1);
 		ch_regs->ctrl = ADMA_CH_REG_FIELD_VAL(tdc->sreq_index,
 						chip_data->tx_request.mask,
@@ -868,7 +881,7 @@ static int tegra_adma_set_xfer_params(struct tegra_adma_chan *tdc,
 
 	case DMA_DEV_TO_MEM:
 		adma_dir = ADMA_CH_CTRL_DIR_AHUB2MEM;
-		burst_size = fls(tdc->sconfig.src_maxburst);
+		burst_size = tdc->sconfig.src_maxburst;
 		ch_regs->config = ADMA_CH_CONFIG_TRG_BUF(desc->num_periods - 1);
 		ch_regs->ctrl = ADMA_CH_REG_FIELD_VAL(tdc->sreq_index,
 						chip_data->rx_request.mask,
@@ -891,15 +904,10 @@ static int tegra_adma_set_xfer_params(struct tegra_adma_chan *tdc,
 		return -EINVAL;
 	}
 
-	if (!burst_size || burst_size > max_burst_words)
-		burst_size = max_burst_words;
-
 	ch_regs->ctrl |= ADMA_CH_CTRL_DIR(adma_dir) |
 			 ADMA_CH_CTRL_MODE_CONTINUOUS |
 			 ADMA_CH_CTRL_FLOWCTRL_EN;
-	ch_regs->config |= ADMA_CH_REG_FIELD_VAL(burst_size,
-					chip_data->burst_size.mask,
-					chip_data->burst_size.shift);
+	ch_regs->config |= chip_data->adma_get_burst_config(burst_size);
 	ch_regs->config |= ADMA_CH_CONFIG_WEIGHT_FOR_WRR(1);
 	ch_regs->config |= chip_data->outstanding_request;
 	ch_regs->fifo_ctrl = fifo_ctrl;
@@ -1095,6 +1103,7 @@ static const struct tegra_adma_chip_data tegra210_chip_data = {
 	.slave_id		= 2,
 	.outstanding_request	= 0,
 	.tegra_adast_init	= NULL,
+	.adma_get_burst_config  = tegra210_adma_get_burst_config,
 	.adma_war = {
 		.smp_sta_reg		= T210_SHRD_SMP_STA,
 		.smp_sta_set_reg	= T210_SHRD_SMP_STA_SET,
@@ -1110,11 +1119,6 @@ static const struct tegra_adma_chip_data tegra210_chip_data = {
 		.shift	= T210_ADMA_CH_CTRL_RX_REQ_SEL_SHIFT,
 		.mask	= T210_ADMA_CH_CTRL_RX_REQ_SEL_MASK,
 		.max	= T210_ADMA_CH_CTRL_RX_REQ_MAX,
-	},
-	.burst_size	= {
-		.shift	= ADMA_CH_CONFIG_BURST_SIZE_SHIFT,
-		.mask	= T210_ADMA_CH_CONFIG_BURST_SIZE_MASK,
-		.max	= 5,
 	},
 	.tx_fifo	= {
 		.shift	= ADMA_CH_FIFO_CTRL_TX_FIFO_SIZE_SHIFT,
@@ -1136,6 +1140,7 @@ static const struct tegra_adma_chip_data tegra186_chip_data = {
 	.slave_id		= 4,
 	.outstanding_request	= (0x8 << 4),
 	.tegra_adast_init	= tegra_adast_init,
+	.adma_get_burst_config  = tegra186_adma_get_burst_config,
 	.adma_war = {
 		.smp_sta_reg		= T186_SHRD_SMP_STA,
 		.smp_sta_set_reg	= T186_SHRD_SMP_STA_SET,
@@ -1151,11 +1156,6 @@ static const struct tegra_adma_chip_data tegra186_chip_data = {
 		.shift	= T186_ADMA_CH_CTRL_RX_REQ_SEL_SHIFT,
 		.mask	= T186_ADMA_CH_CTRL_RX_REQ_SEL_MASK,
 		.max	= T186_ADMA_CH_CTRL_RX_REQ_MAX,
-	},
-	.burst_size	= {
-		.shift	= ADMA_CH_CONFIG_BURST_SIZE_SHIFT,
-		.mask	= T186_ADMA_CH_CONFIG_BURST_SIZE_MASK,
-		.max	= 15,
 	},
 	.tx_fifo	= {
 		.shift	= ADMA_CH_FIFO_CTRL_TX_FIFO_SIZE_SHIFT,
@@ -1177,6 +1177,7 @@ static const struct tegra_adma_chip_data tegra194_chip_data = {
 	.slave_id		= 4,
 	.outstanding_request	= (0x8 << 4),
 	.tegra_adast_init	= tegra_adast_init,
+	.adma_get_burst_config  = tegra186_adma_get_burst_config,
 	.adma_war = {
 		.smp_sta_reg		= T186_SHRD_SMP_STA,
 		.smp_sta_set_reg	= T186_SHRD_SMP_STA_SET,
@@ -1192,11 +1193,6 @@ static const struct tegra_adma_chip_data tegra194_chip_data = {
 		.shift	= T186_ADMA_CH_CTRL_RX_REQ_SEL_SHIFT,
 		.mask	= T186_ADMA_CH_CTRL_RX_REQ_SEL_MASK,
 		.max	= T186_ADMA_CH_CTRL_RX_REQ_MAX,
-	},
-	.burst_size	= {
-		.shift	= ADMA_CH_CONFIG_BURST_SIZE_SHIFT,
-		.mask	= T186_ADMA_CH_CONFIG_BURST_SIZE_MASK,
-		.max	= 15,
 	},
 	.tx_fifo	= {
 		.shift	= ADMA_CH_FIFO_CTRL_TX_FIFO_SIZE_SHIFT,
