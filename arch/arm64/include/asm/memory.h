@@ -75,6 +75,9 @@
 #define PCI_IO_START		(PCI_IO_END - PCI_IO_SIZE)
 #define FIXADDR_TOP		(PCI_IO_START - SZ_2M)
 
+/* The physical address of the end of vmemmap */
+#define VMEMMAP_END_PHYS	((VMEMMAP_SIZE >> STRUCT_PAGE_MAX_SHIFT) << PAGE_SHIFT)
+
 #define KERNEL_START      _text
 #define KERNEL_END        _end
 
