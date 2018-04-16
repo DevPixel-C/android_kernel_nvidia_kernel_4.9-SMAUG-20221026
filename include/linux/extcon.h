@@ -164,6 +164,7 @@
  *
  */
 #define EXTCON_PROP_DISP_HPD		150
+#define EXTCON_PROP_DISP_DP_LANE	151
 
 /* Properties of EXTCON_TYPE_DISP. */
 #define EXTCON_PROP_DISP_MIN		150
