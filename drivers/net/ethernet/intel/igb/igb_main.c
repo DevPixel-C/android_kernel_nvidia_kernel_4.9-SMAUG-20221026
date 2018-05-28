@@ -1823,9 +1823,9 @@ void igb_down(struct igb_adapter *adapter)
 	del_timer_sync(&adapter->phy_info_timer);
 
 	/* record the stats before reset*/
-	spin_lock(&adapter->stats64_lock);
+	spin_lock_bh(&adapter->stats64_lock);
 	igb_update_stats(adapter, &adapter->stats64);
-	spin_unlock(&adapter->stats64_lock);
+	spin_unlock_bh(&adapter->stats64_lock);
 
 	adapter->link_speed = 0;
 	adapter->link_duplex = 0;
@@ -4624,9 +4624,9 @@ no_wait:
 		}
 	}
 
-	spin_lock(&adapter->stats64_lock);
+	spin_lock_bh(&adapter->stats64_lock);
 	igb_update_stats(adapter, &adapter->stats64);
-	spin_unlock(&adapter->stats64_lock);
+	spin_unlock_bh(&adapter->stats64_lock);
 
 	for (i = 0; i < adapter->num_tx_queues; i++) {
 		struct igb_ring *tx_ring = adapter->tx_ring[i];
@@ -5415,10 +5415,10 @@ static struct rtnl_link_stats64 *igb_get_stats64(struct net_device *netdev,
 {
 	struct igb_adapter *adapter = netdev_priv(netdev);
 
-	spin_lock(&adapter->stats64_lock);
+	spin_lock_bh(&adapter->stats64_lock);
 	igb_update_stats(adapter, &adapter->stats64);
 	memcpy(stats, &adapter->stats64, sizeof(*stats));
-	spin_unlock(&adapter->stats64_lock);
+	spin_unlock_bh(&adapter->stats64_lock);
 
 	return stats;
 }
