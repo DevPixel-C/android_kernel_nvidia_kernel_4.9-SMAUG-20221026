@@ -24,6 +24,12 @@ static struct crypto_shash *essiv_hash_tfm;
 static DEFINE_HASHTABLE(fscrypt_master_keys, 6); /* 6 bits = 64 buckets */
 static DEFINE_SPINLOCK(fscrypt_master_keys_lock);
 
+#define SE_STORE_KEY_IN_MEM    0x0001
+#define SE_MAGIC_PATTERN_OFFSET 16
+#define CLEAR_PATTERN(x) ((x) & 0xFFFF)
+#define ENABLE_KEY_IN_MEM(x) \
+	(CLEAR_PATTERN(x) | (SE_STORE_KEY_IN_MEM << SE_MAGIC_PATTERN_OFFSET))
+
 /*
  * Key derivation function.  This generates the derived key by encrypting the
  * master key with AES-128-ECB using the inode's nonce as the AES key.
@@ -55,7 +61,8 @@ static int derive_key_aes(const u8 *master_key,
 	skcipher_request_set_callback(req,
 			CRYPTO_TFM_REQ_MAY_BACKLOG | CRYPTO_TFM_REQ_MAY_SLEEP,
 			crypto_req_done, &wait);
-	res = crypto_skcipher_setkey(tfm, ctx->nonce, sizeof(ctx->nonce));
+	res = crypto_skcipher_setkey(tfm, ctx->nonce,
+				ENABLE_KEY_IN_MEM(sizeof(ctx->nonce)));
 	if (res < 0)
 		goto out;
 
