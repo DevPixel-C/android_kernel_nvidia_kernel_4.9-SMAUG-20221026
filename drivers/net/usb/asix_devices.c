@@ -646,6 +646,9 @@ static void ax88772_restore_phy(struct usbnet *dev)
 		asix_mdio_write_nopm(dev->net, dev->mii.phy_id, MII_ADVERTISE,
 				     priv->presvd_phy_advertise);
 
+		if (priv->presvd_phy_bmcr & BMCR_ANENABLE)
+			priv->presvd_phy_bmcr |= BMCR_ANRESTART;
+
 		/* Restore BMCR */
 		if (priv->presvd_phy_bmcr & BMCR_ANENABLE)
 			priv->presvd_phy_bmcr |= BMCR_ANRESTART;
