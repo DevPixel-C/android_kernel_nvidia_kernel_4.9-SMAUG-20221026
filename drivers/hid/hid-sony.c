@@ -1457,18 +1457,10 @@ out:
 
 static int sixaxis_set_operational_bt(struct hid_device *hdev)
 {
-	static const u8 report[] = { 0xf4, 0x42, 0x03, 0x00, 0x00 };
-	u8 *buf;
+	static u8 report[] = { 0xf4, 0x42, 0x03, 0x00, 0x00 };
 	int ret;
 
-	buf = kmemdup(report, sizeof(report), GFP_KERNEL);
-	if (!buf)
-		return -ENOMEM;
-
-	ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(report),
-				  HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
-
-	kfree(buf);
+	ret = uhid_hid_output_raw(hdev, report, sizeof(report), HID_FEATURE_REPORT);
 
 	return ret;
 }
@@ -1968,7 +1960,7 @@ error_leds:
 	return ret;
 }
 
-static void sixaxis_send_output_report(struct sony_sc *sc)
+static void sixaxis_send_output_report(struct sony_sc *sc, bool is_bt)
 {
 	static const union sixaxis_output_report_01 default_report = {
 		.buf = {
@@ -2019,9 +2011,27 @@ static void sixaxis_send_output_report(struct sony_sc *sc)
 		}
 	}
 
-	hid_hw_raw_request(sc->hdev, report->report_id, (u8 *)report,
-			sizeof(struct sixaxis_output_report),
-			HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
+	if (!is_bt) {
+		hid_hw_raw_request(sc->hdev, report->report_id, (u8 *)report,
+				sizeof(struct sixaxis_output_report),
+				HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
+	} else {
+		/* BT layer does not handle response from request so we have to
+		 * output_report instead
+		 */
+		hid_hw_output_report(sc->hdev, (u8 *)report,
+			sizeof(struct sixaxis_output_report));
+	}
+}
+
+static void sixaxis_send_output_report_usb(struct sony_sc *sc)
+{
+	sixaxis_send_output_report(sc, false);
+}
+
+static void sixaxis_send_output_report_bt(struct sony_sc *sc)
+{
+	sixaxis_send_output_report(sc, true);
 }
 
 static void dualshock4_send_output_report(struct sony_sc *sc)
@@ -2560,7 +2570,7 @@ static int sony_input_configured(struct hid_device *hdev,
 			goto err_stop;
 		}
 
-		sony_init_output_report(sc, sixaxis_send_output_report);
+		sony_init_output_report(sc, sixaxis_send_output_report_usb);
 	} else if (sc->quirks & NAVIGATION_CONTROLLER_BT) {
 		/*
 		 * The Navigation controller wants output reports sent on the ctrl
@@ -2574,7 +2584,7 @@ static int sony_input_configured(struct hid_device *hdev,
 			goto err_stop;
 		}
 
-		sony_init_output_report(sc, sixaxis_send_output_report);
+		sony_init_output_report(sc, sixaxis_send_output_report_bt);
 	} else if (sc->quirks & SIXAXIS_CONTROLLER_USB) {
 		/*
 		 * The Sony Sixaxis does not handle HID Output Reports on the
@@ -2599,7 +2609,7 @@ static int sony_input_configured(struct hid_device *hdev,
 			goto err_stop;
 		}
 
-		sony_init_output_report(sc, sixaxis_send_output_report);
+		sony_init_output_report(sc, sixaxis_send_output_report_usb);
 	} else if (sc->quirks & SIXAXIS_CONTROLLER_BT) {
 		/*
 		 * The Sixaxis wants output reports sent on the ctrl endpoint
@@ -2620,7 +2630,7 @@ static int sony_input_configured(struct hid_device *hdev,
 			goto err_stop;
 		}
 
-		sony_init_output_report(sc, sixaxis_send_output_report);
+		sony_init_output_report(sc, sixaxis_send_output_report_bt);
 	} else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
 		ret = dualshock4_get_calibration_data(sc);
 		if (ret < 0) {
@@ -2864,8 +2874,8 @@ static const struct hid_device_id sony_devices[] = {
 		.driver_data = MOTION_CONTROLLER_USB },
 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_MOTION_CONTROLLER),
 		.driver_data = MOTION_CONTROLLER_BT },
-/*	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER),
-		.driver_data = SIXAXIS_CONTROLLER_BT },*/
+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER),
+		.driver_data = SIXAXIS_CONTROLLER_BT },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE),
 		.driver_data = VAIO_RDESC_CONSTANT },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGP_MOUSE),
