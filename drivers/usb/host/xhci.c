@@ -2,7 +2,7 @@
  * xHCI host controller driver
  *
  * Copyright (C) 2008 Intel Corp.
- * Copyright (c) 2018 NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2018-2019 NVIDIA CORPORATION.  All rights reserved.
  *
  * Author: Sarah Sharp
  * Some code borrowed from the Linux EHCI driver.
@@ -1523,6 +1523,7 @@ free_priv:
 	spin_unlock_irqrestore(&xhci->lock, flags);
 	return ret;
 }
+EXPORT_SYMBOL_GPL(xhci_urb_enqueue);
 
 /*
  * Remove the URB's TD from the endpoint ring.  This may cause the HC to stop
@@ -1844,6 +1845,7 @@ int xhci_add_endpoint(struct usb_hcd *hcd, struct usb_device *udev,
 			(unsigned int) new_add_flags);
 	return 0;
 }
+EXPORT_SYMBOL_GPL(xhci_add_endpoint);
 
 static void xhci_zero_in_ctx(struct xhci_hcd *xhci, struct xhci_virt_device *virt_dev)
 {
@@ -3703,6 +3705,7 @@ void xhci_free_dev(struct usb_hcd *hcd, struct usb_device *udev)
 	 * associated with the slot.  XXX Can free sleep?
 	 */
 }
+EXPORT_SYMBOL_GPL(xhci_free_dev);
 
 /*
  * Checks if we have enough host controller resources for the default control
@@ -3818,6 +3821,7 @@ disable_slot:
 	spin_unlock_irqrestore(&xhci->lock, flags);
 	return 0;
 }
+EXPORT_SYMBOL_GPL(xhci_alloc_dev);
 
 /*
  * Issue an Address Device command and optionally send a corresponding
@@ -4325,6 +4329,7 @@ int xhci_update_device(struct usb_hcd *hcd, struct usb_device *udev)
 
 	return 0;
 }
+EXPORT_SYMBOL_GPL(xhci_update_device);
 
 /*---------------------- USB 3.0 Link PM functions ------------------------*/
 
@@ -4755,6 +4760,7 @@ int xhci_enable_usb3_lpm_timeout(struct usb_hcd *hcd,
 		return ret;
 	return hub_encoded_timeout;
 }
+EXPORT_SYMBOL_GPL(xhci_enable_usb3_lpm_timeout);
 
 int xhci_disable_usb3_lpm_timeout(struct usb_hcd *hcd,
 			struct usb_device *udev, enum usb3_link_state state)
@@ -4782,12 +4788,14 @@ int xhci_update_device(struct usb_hcd *hcd, struct usb_device *udev)
 {
 	return 0;
 }
+EXPORT_SYMBOL_GPL(xhci_update_device);
 
 int xhci_enable_usb3_lpm_timeout(struct usb_hcd *hcd,
 			struct usb_device *udev, enum usb3_link_state state)
 {
 	return USB3_LPM_DISABLED;
 }
+EXPORT_SYMBOL_GPL(xhci_enable_usb3_lpm_timeout);
 
 int xhci_disable_usb3_lpm_timeout(struct usb_hcd *hcd,
 			struct usb_device *udev, enum usb3_link_state state)
@@ -4795,7 +4803,6 @@ int xhci_disable_usb3_lpm_timeout(struct usb_hcd *hcd,
 	return 0;
 }
 #endif	/* CONFIG_PM */
-
 /*-------------------------------------------------------------------------*/
 
 /* Once a hub descriptor is fetched for a device, we need to update the xHC's
@@ -5117,7 +5124,6 @@ void xhci_init_driver(struct hc_driver *drv,
 	}
 }
 EXPORT_SYMBOL_GPL(xhci_init_driver);
-
 MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_AUTHOR(DRIVER_AUTHOR);
 MODULE_LICENSE("GPL");
