@@ -3,7 +3,7 @@
  *
  *      Copyright (C) 2005-2010
  *          Laurent Pinchart (laurent.pinchart@ideasonboard.com)
- *      Copyright (C) 2018, NVIDIA CORPORATION. All rights reserved.
+ *      Copyright (C) 2018-2019, NVIDIA CORPORATION. All rights reserved.
  *
  *      This program is free software; you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
