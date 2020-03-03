@@ -213,6 +213,8 @@ el2_sync:
 	restore_caller_saved_regs_vect
 
 	eret
+	dsb nsh
+	isb
 
 el2_error:
 	save_caller_saved_regs_vect
