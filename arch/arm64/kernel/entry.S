@@ -317,6 +317,8 @@ alternative_insn eret, nop, ARM64_UNMAP_KERNEL_AT_EL0
 	.else
 	eret
 	.endif
+	dsb nsh
+	isb
 	.endm
 
 	.macro	irq_stack_entry
@@ -1016,6 +1018,8 @@ __ni_sys_trace:
 	mrs	x30, far_el1
 	.endif
 	eret
+	dsb nsh
+	isb
 	.endm
 
 	.align	11
