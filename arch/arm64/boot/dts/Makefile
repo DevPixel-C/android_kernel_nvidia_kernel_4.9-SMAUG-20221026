@@ -92,6 +92,7 @@ $(DTBO_NEW_RULE_LIST):
 	$(call if_changed_dep,dtc)
 
 dtbs: $(DTB_OBJS) $(DTBO_OBJS) FORCE
+ifneq ($(DTB_OBJS),)
 	if [ ! -d arch/arm64/boot/dts/nvidia/ ] ; then \
 		mkdir arch/arm64/boot/dts/nvidia/ ; \
 	fi
@@ -99,5 +100,6 @@ dtbs: $(DTB_OBJS) $(DTBO_OBJS) FORCE
 	if [ -d arch/arm64/boot/dts/_ddot_/ ] ; then \
 		rm -rf arch/arm64/boot/dts/_ddot_/ ; \
 	fi
+endif
 
 clean-files := *.dtb *.dtbo *.tmp
