@@ -2389,6 +2389,16 @@ config ASN1
 	  inform it as to what tags are to be expected in a stream and what
 	  functions to call on what tags.
 
+config IGNORE_SAR
+	bool "Ignore system-as-root parameters"
+	default n
+	help
+	  Ignore system-as-root parameters to allow booting an image with an
+          initramfs even when skip initramfs is passed. This should only be
+          enabled when building a standalone recovery.
+
+	  If unsure, say N.
+
 source "kernel/Kconfig.locks"
 
 config ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE

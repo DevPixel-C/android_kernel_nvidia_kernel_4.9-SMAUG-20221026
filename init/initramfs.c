@@ -602,10 +602,58 @@ static void __init populate_initrd_image(char *err)
 }
 #endif /* CONFIG_BLK_DEV_RAM */
 
+static int __initdata do_skip_initramfs;
+
+static int __init skip_initramfs_param(char *str)
+{
+	if (*str)
+		return 0;
+#if defined(CONFIG_IGNORE_SAR)
+	pr_info("Ignore skip_initramfs to disable system as root\n");
+	do_skip_initramfs = 0;
+#else
+	do_skip_initramfs = 1;
+#endif
+	return 1;
+}
+__setup("skip_initramfs", skip_initramfs_param);
+
+static int __init default_rootfs(void)
+{
+	int err;
+
+	err = init_mkdir("/dev", 0755);
+	if (err < 0)
+		goto out;
+
+	err = init_mknod("/dev/console", S_IFCHR | S_IRUSR | S_IWUSR,
+			new_encode_dev(MKDEV(5, 1)));
+	if (err < 0)
+		goto out;
+
+	err = init_mkdir("/root", 0700);
+	if (err < 0)
+		goto out;
+
+	return 0;
+
+out:
+	printk(KERN_WARNING "Failed to create a rootfs\n");
+	return err;
+}
+
 static int __init populate_rootfs(void)
 {
+	char *err;
+
+	if (do_skip_initramfs) {
+		if (initrd_start)
+			free_initrd_mem(initrd_start, initrd_end);
+		return default_rootfs();
+	}
+
 	/* Load the built in initramfs */
-	char *err = unpack_to_rootfs(__initramfs_start, __initramfs_size);
+	err = unpack_to_rootfs(__initramfs_start, __initramfs_size);
 	if (err)
 		panic("%s", err); /* Failed to decompress INTERNAL initramfs */
 
