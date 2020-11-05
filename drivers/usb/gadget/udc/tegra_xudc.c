@@ -4463,7 +4463,6 @@ static int tegra_xudc_powergate(struct tegra_xudc *xudc)
 		return 0;
 
 	dev_info(xudc->dev, "entering ELPG\n");
-	cancel_work_sync(&xudc->pullup_work);
 	spin_lock_irqsave(&xudc->lock, flags);
 	xudc->powergated = true;
 	xudc->saved_regs.ctrl = xudc_readl(xudc, CTRL);
