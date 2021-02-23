@@ -1,7 +1,5 @@
 /*
- * GM20B FB
- *
- * Copyright (c) 2014, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2016, NVIDIA CORPORATION.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -11,13 +9,14 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _NVHOST_GM20B_FB
-#define _NVHOST_GM20B_FB
-struct gk20a;
+#ifndef _DT_BINDINGS_GM20B_FUSE_H
+#define _DT_BINDINGS_GM20B_FUSE_H
 
-void gm20b_init_fb(struct gpu_ops *gops);
-void gm20b_init_uncompressed_kind_map(void);
-void gm20b_init_kind_attr(void);
+#define GM20B_FUSE_OPT_TPC_DISABLE	0x354
+
 #endif
