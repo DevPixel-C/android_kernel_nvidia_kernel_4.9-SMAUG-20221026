@@ -206,6 +206,12 @@ void te_restore_keyslots(void)
 }
 EXPORT_SYMBOL(te_restore_keyslots);
 
+void tlk_restore_keyslots(void)
+{
+	te_restore_keyslots();
+}
+EXPORT_SYMBOL(tlk_restore_keyslots);
+
 /*
  * Invalidates current BTB
  */

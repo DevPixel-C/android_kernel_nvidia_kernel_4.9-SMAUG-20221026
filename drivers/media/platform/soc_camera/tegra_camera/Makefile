@@ -11,4 +11,4 @@ endif
 
 obj-$(CONFIG_VIDEO_TEGRA) += tegra_camera.o
 
-ccflags-y += -I$(srctree)/drivers/video/tegra/host
+ccflags-y += -I$(srctree)/../nvidia/drivers/video/tegra/host

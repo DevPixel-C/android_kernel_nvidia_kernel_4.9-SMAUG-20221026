@@ -1,5 +1,5 @@
 GCOV_PROFILE := y
-ccflags-y += -Idrivers/video/tegra/host
+ccflags-y += -I../nvidia/drivers/video/tegra/host
 ccflags-y += -Idrivers/media/platform/tegra
 ccflags-y += -Werror
 ccflags-y += -Idrivers/media/platform/tegra/mipical

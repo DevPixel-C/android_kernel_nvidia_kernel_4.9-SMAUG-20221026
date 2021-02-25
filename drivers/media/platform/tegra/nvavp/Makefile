@@ -1,5 +1,5 @@
 GCOV_PROFILE := y
-EXTRA_CFLAGS += -Idrivers/video/tegra/host
+ccflags-y += -I../nvidia/drivers/video/tegra/host
 
 ccflags-y += -Werror
 obj-$(CONFIG_TEGRA_NVAVP)		+= nvavp_dev.o

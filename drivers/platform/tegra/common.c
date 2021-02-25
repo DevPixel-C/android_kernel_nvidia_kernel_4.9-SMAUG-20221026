@@ -252,6 +252,24 @@ EXPORT_SYMBOL(tegra_iram_dev);
 #define CREATE_TRACE_POINTS
 #include <trace/events/nvsecurity.h>
 
+int (*do_idle)(void) = NULL;
+int (*do_unidle)(void) = NULL;
+
+void tegra_register_idle_unidle(int (*gk20a_do_idle)(void),
+				int (*gk20a_do_unidle)(void))
+{
+	do_idle = gk20a_do_idle;
+	do_unidle = gk20a_do_unidle;
+}
+EXPORT_SYMBOL(tegra_register_idle_unidle);
+
+void tegra_unregister_idle_unidle(void)
+{
+	do_idle = NULL;
+	do_unidle = NULL;
+}
+EXPORT_SYMBOL(tegra_unregister_idle_unidle);
+
 static int tegra_update_resize_cfg(phys_addr_t base , size_t size)
 {
 	int err = 0;
@@ -260,11 +278,13 @@ static int tegra_update_resize_cfg(phys_addr_t base , size_t size)
 	int retries = MAX_RETRIES;
 
 retry:
-	err = gk20a_do_idle();
+	if (do_idle)
+		err = do_idle();
 	if (!err) {
 		/* Config VPR_BOM/_SIZE in MC */
 		err = te_set_vpr_params((void *)(uintptr_t)base, size);
-		gk20a_do_unidle();
+		if (do_unidle)
+			do_unidle();
 	} else {
 		if (retries--) {
 			pr_err("%s:%d: fail retry=%d",

@@ -20,6 +20,16 @@
 
 #include <linux/of.h>
 
+#define TEGRA20		0x20
+#define TEGRA30		0x30
+#define TEGRA114	0x35
+#define TEGRA148	0x14
+#define TEGRA124	0x40
+#define TEGRA132	0x13
+#define TEGRA210	0x21
+#define TEGRA186	0x18
+
+u32 tegra_get_chip_id(void);
 u32 tegra_read_chipid(void);
 
 enum tegra_chipid {
@@ -54,6 +64,7 @@ enum tegra_platform {
 	TEGRA_PLATFORM_LINSIM,
 	TEGRA_PLATFORM_FPGA,
 	TEGRA_PLATFORM_UNIT_FPGA,
+	TEGRA_PLATFORM_VDK,
 	TEGRA_PLATFORM_MAX,
 };
 
@@ -205,6 +216,14 @@ static inline bool tegra_platform_is_fpga(void)
 static inline bool tegra_platform_is_unit_fpga(void)
 {
 	return tegra_get_platform() == TEGRA_PLATFORM_UNIT_FPGA;
+}
+static inline bool tegra_platform_is_vdk(void)
+{
+	return tegra_get_platform() == TEGRA_PLATFORM_VDK;
+}
+static inline bool tegra_platform_is_sim(void)
+{
+	return tegra_platform_is_vdk();
 }
 
 bool tegra_bonded_out_dev(enum tegra_bondout_dev);

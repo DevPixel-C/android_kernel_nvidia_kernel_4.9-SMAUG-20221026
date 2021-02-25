@@ -1,44 +1,8 @@
 comment "NVIDIA Tegra Display Driver options"
 
-config TEGRA_GRHOST
-	tristate "Tegra graphics host driver"
-	help
-	  Driver for the Tegra graphics host hardware.
-
-config TEGRA_GRHOST_VII2C
-	depends on TEGRA_GRHOST
-	tristate "Tegra vii2c host1x client driver"
-	help
-	  Driver for the Tegra vi-i2c hardware.
-	  To compile this driver as a module, choose M here:
-	  the  module will be called nvhost-vii2c.
-
-config TEGRA_GRHOST_ISP
-	depends on TEGRA_GRHOST
-	tristate "Tegra image processing pipeline support"
-	default y
-	help
-	  Driver for the Tegra image processing pipeline (ISP)
-	  To compile this driver as a module, choose M here:
-	  the  module will be called nvhost-isp.
-
-config TEGRA_GRHOST_DEFAULT_TIMEOUT
-	depends on TEGRA_GRHOST
-	int "Default timeout for submits"
-	default 10000
-	help
-	  Default timeout for jobs in milliseconds. Set to zero for no timeout.
-
-config TEGRA_GRHOST_SYNC
-	depends on TEGRA_GRHOST
-	bool "Tegra host synchronization objects"
-	default y
-	select SYNC
-	help
-	  Add tegra host backend for the cross driver synchronization framework.
-	  Allows creating sync fence file descriptors from Tegra host syncpoints.
-
 source "drivers/video/tegra/nvmap/Kconfig"
+
+source "../nvidia/drivers/video/tegra/Kconfig"
 
 config TEGRA_GR_VIRTUALIZATION
 	bool "Tegra graphics virtualization support"
