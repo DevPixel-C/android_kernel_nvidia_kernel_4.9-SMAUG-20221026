@@ -337,20 +337,18 @@ static inline void __tegra_fuse_writel(u32 val,
 	writel(val, IO_ADDRESS(TEGRA_FUSE_BASE + offset));
 }
 
-u32 tegra_fuse_readl(unsigned long offset)
+int tegra_fuse_readl(unsigned long offset, u32 *val)
 {
-	u32 val;
-
 	if (fuse_base)
-		val = readl(fuse_base + offset);
+		*val = readl(fuse_base + offset);
 	else
-		val = __tegra_fuse_readl(offset);
+		*val = __tegra_fuse_readl(offset);
 
 #ifdef CONFIG_ARCH_TEGRA_21x_SOC
-	fuse_update_overridden_reg_val(offset, &val);
+	fuse_update_overridden_reg_val(offset, val);
 #endif
 
-	return val;
+	return 0;
 }
 EXPORT_SYMBOL(tegra_fuse_readl);
 
@@ -365,7 +363,11 @@ EXPORT_SYMBOL(tegra_fuse_writel);
 
 bool tegra_spare_fuse(int bit)
 {
-	return tegra_fuse_readl(FUSE_SPARE_BIT + bit * 4);
+	u32 val;
+
+	tegra_fuse_readl(FUSE_SPARE_BIT + bit * 4, &val);
+
+	return val;
 }
 
 int tegra_gpu_register_sets(void)
@@ -429,7 +431,9 @@ module_param_cb(tegra_gpu_num_alus_per_pixel_pipe,
 int tegra_fuse_calib_gpcpll_get_adc(int *slope_uv, int *intercept_uv)
 {
 #ifdef CONFIG_ARCH_TEGRA_21x_SOC
-	u32 val = tegra_fuse_readl(FUSE_RESERVED_CALIB);
+	u32 val;
+	
+	tegra_fuse_readl(FUSE_RESERVED_CALIB, &val);
 	if (fuse_get_gpcpll_adc_rev(val)) {
 		*slope_uv = fuse_get_gpcpll_adc_slope_uv(val);
 		*intercept_uv = fuse_get_gpcpll_adc_intercept_uv(val);
@@ -717,7 +721,7 @@ module_param_cb(tegra_chip_rev, &tegra_revision_ops, &tegra_id.revision, 0444);
 #ifndef CONFIG_ARCH_TEGRA_21x_SOC
 static unsigned int get_fuse_vp8_enable(char *val, struct kernel_param *kp)
 {
-	tegra_fuse_vp8_enable =  tegra_fuse_readl(FUSE_VP8_ENABLE_0);
+	tegra_fuse_readl(FUSE_VP8_ENABLE_0, &tegra_fuse_vp8_enable);
 
 	return param_get_uint(val, kp);
 }
@@ -733,7 +737,7 @@ static void wait_for_idle(void)
 
 	do {
 		udelay(1);
-		reg = tegra_fuse_readl(FUSE_CTRL);
+		tegra_fuse_readl(FUSE_CTRL, &reg);
 	} while ((reg & (0xF << 16)) != STATE_IDLE);
 }
 
@@ -743,13 +747,13 @@ u32 fuse_cmd_read(u32 addr)
 
 	wait_for_idle();
 	tegra_fuse_writel(addr, FUSE_REG_ADDR);
-	reg = tegra_fuse_readl(FUSE_CTRL);
+	tegra_fuse_readl(FUSE_CTRL, &reg);
 	reg &= ~FUSE_CMD_MASK;
 	reg |= FUSE_READ;
 	tegra_fuse_writel(reg, FUSE_CTRL);
 	wait_for_idle();
 
-	reg = tegra_fuse_readl(FUSE_REG_READ);
+	tegra_fuse_readl(FUSE_REG_READ, &reg);
 	return reg;
 }
 
@@ -761,7 +765,7 @@ static void fuse_cmd_write(u32 value, u32 addr)
 	tegra_fuse_writel(addr, FUSE_REG_ADDR);
 	tegra_fuse_writel(value, FUSE_REG_WRITE);
 
-	reg = tegra_fuse_readl(FUSE_CTRL);
+	tegra_fuse_readl(FUSE_CTRL, &reg);
 	reg &= ~FUSE_CMD_MASK;
 	reg |= FUSE_WRITE;
 	tegra_fuse_writel(reg, FUSE_CTRL);
@@ -997,7 +1001,7 @@ static void fuse_program_array(struct device *dev, int pgm_cycles)
 	 */
 	do {
 		udelay(1);
-		reg = tegra_fuse_readl(FUSE_CTRL);
+		tegra_fuse_readl(FUSE_CTRL, &reg);
 	} while ((reg & BIT(30)) != SENSE_DONE);
 
 }
@@ -1124,7 +1128,7 @@ static int tegra_fuse_program(struct device *dev,
 
 	/* check that fuse options write access hasn't been disabled */
 	mutex_lock(&fuse_lock);
-	reg = tegra_fuse_readl(FUSE_DIS_PGM);
+	tegra_fuse_readl(FUSE_DIS_PGM, &reg);
 	mutex_unlock(&fuse_lock);
 	if (reg) {
 		dev_err(dev, "fuse programming disabled");
@@ -1349,7 +1353,7 @@ static void tegra_set_sku_id(void)
 {
 	u32 reg;
 
-	reg = tegra_fuse_readl(FUSE_SKU_INFO);
+	tegra_fuse_readl(FUSE_SKU_INFO, &reg);
 #ifdef CONFIG_ARCH_TEGRA_21x_SOC
 	if (reg & FUSE_SKU_MSB_MASK)
 		tegra_chip_sku_id = (reg >> FUSE_SKU_MSB_SHIFT);
@@ -1385,7 +1389,7 @@ u32 tegra_get_fuse_opt_subrevision(void)
 #ifdef CONFIG_ARCH_TEGRA_21x_SOC
 	u32 reg;
 
-	reg = tegra_fuse_readl(FUSE_OPT_SUBREVISION);
+	tegra_fuse_readl(FUSE_OPT_SUBREVISION, &reg);
 
 	ret = reg & FUSE_OPT_SUBREVISION_MASK;
 #endif
@@ -1415,7 +1419,7 @@ void tegra_init_fuse(void)
 	tegra_fuse_cfg_reg_visible();
 #ifdef CONFIG_ARCH_TEGRA_21x_SOC
 	tegra_fuse_override_chip_option_regs();
-	regsoc = tegra_fuse_readl(FUSE_SPEEDO_1_CALIB_0);
+	tegra_fuse_readl(FUSE_SPEEDO_1_CALIB_0, regsoc);
 #endif
 	tegra_set_sku_id();
 	sku_id = tegra_get_sku_id();
@@ -1505,7 +1509,7 @@ static int tegra_fuse_probe(struct platform_device *pdev)
 
 	if (chip_data->power_down_mode) {
 		/* Disable power down mode if enabled */
-		reg = tegra_fuse_readl(FUSE_CTRL);
+		tegra_fuse_readl(FUSE_CTRL, &reg);
 		if (FUSE_CTRL_PD & reg) {
 			reg &= ~FUSE_CTRL_PD;
 			tegra_fuse_writel(reg, FUSE_CTRL);

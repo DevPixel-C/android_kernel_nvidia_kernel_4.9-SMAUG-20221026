@@ -500,7 +500,7 @@ int __init loki_sdhci_init(void)
 		tegra_sdhci_platform_data3.boot_vcore_mv = boot_vcore_mv;
 	}
 
-	speedo = tegra_fuse_readl(FUSE_SOC_SPEEDO_0);
+	tegra_fuse_readl(FUSE_SOC_SPEEDO_0, &speedo);
 	tegra_sdhci_platform_data0.cpu_speedo = speedo;
 	tegra_sdhci_platform_data2.cpu_speedo = speedo;
 	tegra_sdhci_platform_data3.cpu_speedo = speedo;

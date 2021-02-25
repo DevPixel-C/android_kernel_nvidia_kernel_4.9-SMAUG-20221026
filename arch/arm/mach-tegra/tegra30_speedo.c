@@ -91,12 +91,12 @@ static void fuse_speedo_calib(u32 *speedo_g, u32 *speedo_lp)
 	int bit_minus1;
 	int bit_minus2;
 
-	reg = tegra_fuse_readl(FUSE_SPEEDO_CALIB_0);
+	tegra_fuse_readl(FUSE_SPEEDO_CALIB_0, &reg);
 
 	*speedo_lp = (reg & 0xFFFF) * 4;
 	*speedo_g = ((reg >> 16) & 0xFFFF) * 4;
 
-	ate_ver = tegra_fuse_readl(FUSE_TEST_PROG_VER);
+	tegra_fuse_readl(FUSE_TEST_PROG_VER, &ate_ver);
 	pr_info("%s: ATE prog ver %d.%d\n", __func__, ate_ver/10, ate_ver%10);
 
 	if (ate_ver >= 26) {
@@ -254,7 +254,8 @@ void tegra30_init_speedo_data(void)
 	BUILD_BUG_ON(ARRAY_SIZE(core_process_speedos) !=
 			THRESHOLD_INDEX_COUNT);
 
-	package_id = tegra_fuse_readl(FUSE_PACKAGE_INFO) & 0x0F;
+	tegra_fuse_readl(FUSE_PACKAGE_INFO, &package_id);
+	package_id &= 0x0F;
 
 	rev_sku_to_speedo_ids(tegra_revision, tegra_sku_id);
 	fuse_speedo_calib(&cpu_speedo_val, &core_speedo_val);

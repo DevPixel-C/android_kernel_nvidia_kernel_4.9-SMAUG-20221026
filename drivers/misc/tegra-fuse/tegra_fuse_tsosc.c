@@ -114,7 +114,7 @@ static int fuse_cp_rev_check(void)
 {
 	u32 rev, rev_major, rev_minor, chip_rev;
 
-	rev = tegra_fuse_readl(FUSE_CP_REV);
+	tegra_fuse_readl(FUSE_CP_REV, &rev);
 	rev_minor = rev & 0x1f;
 	rev_major = (rev >> 5) & 0x3f;
 	pr_debug("%s: CP rev %d.%d\n", __func__, rev_major, rev_minor);
@@ -185,7 +185,7 @@ static int fuse_ft_rev_check(void)
 	if (check_cp == 0)
 		return -ENODEV; /* No FT rev in CP1/CP2 mode */
 
-	rev = tegra_fuse_readl(FUSE_FT_REV);
+	tegra_fuse_readl(FUSE_FT_REV, &rev);
 	rev_minor = rev & 0x1f;
 	rev_major = (rev >> 5) & 0x3f;
 	pr_debug("%s: FT rev %d.%d\n", __func__, rev_major, rev_minor);
@@ -205,7 +205,7 @@ static int fuse_calib_base_get_cp_raw(u32 *base_cp, s32 *shifted_cp)
 	if (check_cp < 0)
 		return check_cp;
 
-	val = tegra_fuse_readl(FUSE_TSENSOR_COMMON);
+	tegra_fuse_readl(FUSE_TSENSOR_COMMON, &val);
 	if (!val)
 		return -EINVAL;
 
@@ -218,7 +218,7 @@ static int fuse_calib_base_get_cp_raw(u32 *base_cp, s32 *shifted_cp)
 
 	if ((chip_id == TEGRA_CHIPID_TEGRA12) ||
 	    (chip_id == TEGRA_CHIPID_TEGRA13))
-		val = tegra_fuse_readl(FUSE_SPARE_REALIGNMENT_REG_0);
+		tegra_fuse_readl(FUSE_SPARE_REALIGNMENT_REG_0, &val);
 
 	cp = (val >> FUSE_SHIFT_CP_POS) & FUSE_SHIFT_CP_MASK;
 	*shifted_cp = ((s32)cp << (32 - FUSE_SHIFT_CP_BITS))
@@ -238,7 +238,7 @@ static int fuse_calib_base_get_ft_raw(u32 *base_ft, s32 *shifted_ft)
 	if (check_cp != 0 && check_ft < 0)
 		return -EINVAL;
 
-	val = tegra_fuse_readl(FUSE_TSENSOR_COMMON);
+	tegra_fuse_readl(FUSE_TSENSOR_COMMON, &val);
 	if (!val)
 		return -EINVAL;
 
@@ -262,7 +262,7 @@ int tegra_fuse_get_tsensor_calib(int index, u32 *calib)
 
 	if (index < 0 || index >= ARRAY_SIZE(tsensor_calib_offset))
 		return -EINVAL;
-	value = tegra_fuse_readl(tsensor_calib_offset[index]);
+	tegra_fuse_readl(tsensor_calib_offset[index], &value);
 	if (calib)
 		*calib = value;
 	return 0;

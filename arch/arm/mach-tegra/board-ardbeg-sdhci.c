@@ -516,7 +516,7 @@ int __init ardbeg_sdhci_init(void)
 	if (board_info.board_id == BOARD_PM375)
 		tegra_sdhci_platform_data2.max_clk_limit = 200000000;
 
-	speedo = tegra_fuse_readl(FUSE_SOC_SPEEDO_0);
+	tegra_fuse_readl(FUSE_SOC_SPEEDO_0, &speedo);
 	tegra_sdhci_platform_data0.cpu_speedo = speedo;
 	tegra_sdhci_platform_data2.cpu_speedo = speedo;
 	tegra_sdhci_platform_data3.cpu_speedo = speedo;

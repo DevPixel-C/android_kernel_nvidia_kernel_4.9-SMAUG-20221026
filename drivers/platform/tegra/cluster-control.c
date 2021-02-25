@@ -107,7 +107,7 @@ bool cluster_switch_supported(void)
 {
 	u32 lp_cluster_disabled;
 
-	lp_cluster_disabled = tegra_fuse_readl(SKU_DIRECT_CONFIG);
+	tegra_fuse_readl(SKU_DIRECT_CONFIG, &lp_cluster_disabled);
 	lp_cluster_disabled >>= DISABLE_SLOW_CLUSTER_BIT;
 	lp_cluster_disabled &= 0x1;
 

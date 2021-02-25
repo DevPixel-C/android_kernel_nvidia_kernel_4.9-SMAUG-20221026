@@ -837,7 +837,9 @@ EXPORT_SYMBOL_GPL(hsic_trk_enable);
 static void get_usb_calib_data(int pad, u32 *hs_curr_level_pad,
 		u32 *term_range_adj, u32 *rpd_ctl, u32 *hs_iref_cap)
 {
-	u32 usb_calib0 = tegra_fuse_readl(FUSE_SKU_USB_CALIB_0);
+	u32 usb_calib0;
+	
+	tegra_fuse_readl(FUSE_SKU_USB_CALIB_0, &usb_calib0);
 	/*
 	 * read from usb_calib0 and pass to driver
 	 * set HS_CURR_LEVEL (PAD0)	= usb_calib0[5:0]
@@ -847,7 +849,9 @@ static void get_usb_calib_data(int pad, u32 *hs_curr_level_pad,
 	 * set HS_CURR_LEVEL (PAD1)	= usb_calib0[20:15]
 	 */
 #ifdef CONFIG_ARCH_TEGRA_21x_SOC
-	u32 usb_calib_ext = tegra_fuse_readl(FUSE_USB_CALIB_EXT_0);
+	u32 usb_calib_ext;
+	
+	tegra_fuse_readl(FUSE_USB_CALIB_EXT_0, &usb_calib_ext);
 	/* RPD_CTRL			= USB_CALIB_EXT[4:0] */
 
 	pr_debug("usb_calib0 = 0x%08x\n", usb_calib0);

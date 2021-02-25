@@ -251,17 +251,20 @@ void tegra_init_speedo_data(void)
 	}
 
 	/* Read speedo/iddq fuses */
-	cpu_speedo_0_value = tegra_fuse_readl(FUSE_CPU_SPEEDO_0);
-	cpu_speedo_1_value = tegra_fuse_readl(FUSE_CPU_SPEEDO_1);
-	cpu_speedo_2_value = tegra_fuse_readl(FUSE_CPU_SPEEDO_2);
+	tegra_fuse_readl(FUSE_CPU_SPEEDO_0, &cpu_speedo_0_value);
+	tegra_fuse_readl(FUSE_CPU_SPEEDO_1, &cpu_speedo_1_value);
+	tegra_fuse_readl(FUSE_CPU_SPEEDO_2, &cpu_speedo_2_value);
 
-	soc_speedo_0_value = tegra_fuse_readl(FUSE_SOC_SPEEDO_0);
-	soc_speedo_1_value = tegra_fuse_readl(FUSE_SOC_SPEEDO_1);
-	soc_speedo_2_value = tegra_fuse_readl(FUSE_SOC_SPEEDO_2);
+	tegra_fuse_readl(FUSE_SOC_SPEEDO_0, &soc_speedo_0_value);
+	tegra_fuse_readl(FUSE_SOC_SPEEDO_1, &soc_speedo_1_value);
+	tegra_fuse_readl(FUSE_SOC_SPEEDO_2, &soc_speedo_2_value);
 
-	cpu_iddq_value = tegra_fuse_readl(FUSE_CPU_IDDQ) * 4;
-	soc_iddq_value = tegra_fuse_readl(FUSE_SOC_IDDQ) * 4;
-	gpu_iddq_value = tegra_fuse_readl(FUSE_GPU_IDDQ) * 5;
+	tegra_fuse_readl(FUSE_CPU_IDDQ, &cpu_iddq_value);
+	cpu_iddq_value *= 4;
+	tegra_fuse_readl(FUSE_SOC_IDDQ, &soc_iddq_value);
+	soc_iddq_value *= 4;
+	tegra_fuse_readl(FUSE_GPU_IDDQ, &gpu_iddq_value);
+	gpu_iddq_value *= 5;
 
 	/*
 	 * Determine CPU, GPU, SOC speedo values depending on speedo fusing

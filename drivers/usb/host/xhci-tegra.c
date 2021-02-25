@@ -5485,7 +5485,7 @@ static void tegra_xusb_read_calib_data(struct tegra_xhci_hcd *tegra)
 	if (XUSB_DEVICE_ID_T210 == tegra->device_id)
 		return;
 
-	usb_calib0 = tegra_fuse_readl(FUSE_SKU_USB_CALIB_0);
+	tegra_fuse_readl(FUSE_SKU_USB_CALIB_0, &usb_calib0);
 
 	pr_info("tegra_xusb_read_usb_calib: usb_calib0 = 0x%08x\n", usb_calib0);
 	/*

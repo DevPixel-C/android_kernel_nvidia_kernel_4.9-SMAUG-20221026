@@ -145,21 +145,22 @@ void tegra_init_speedo_data(void)
 		return;
 	}
 
-	package_id = tegra_fuse_readl(FUSE_PACKAGE_INFO) & 0x0F;
+	tegra_fuse_readl(FUSE_PACKAGE_INFO, &package_id);
+	package_id &= 0x0F;
 
-	cpu_speedo_0_value = tegra_fuse_readl(FUSE_CPU_SPEEDO_0);
-	cpu_speedo_1_value = tegra_fuse_readl(FUSE_CPU_SPEEDO_1);
+	tegra_fuse_readl(FUSE_CPU_SPEEDO_0, &cpu_speedo_0_value);
+	tegra_fuse_readl(FUSE_CPU_SPEEDO_1, &cpu_speedo_1_value);
 
 	/* GPU Speedo is stored in CPU_SPEEDO_2 */
-	gpu_speedo_value = tegra_fuse_readl(FUSE_CPU_SPEEDO_2);
+	tegra_fuse_readl(FUSE_CPU_SPEEDO_2, &gpu_speedo_value);
 
-	soc_speedo_0_value = tegra_fuse_readl(FUSE_SOC_SPEEDO_0);
-	soc_speedo_1_value = tegra_fuse_readl(FUSE_SOC_SPEEDO_1);
-	soc_speedo_2_value = tegra_fuse_readl(FUSE_SOC_SPEEDO_2);
+	tegra_fuse_readl(FUSE_SOC_SPEEDO_0, &soc_speedo_0_value);
+	tegra_fuse_readl(FUSE_SOC_SPEEDO_1, &soc_speedo_1_value);
+	tegra_fuse_readl(FUSE_SOC_SPEEDO_2, &soc_speedo_2_value);
 
-	cpu_iddq_value = tegra_fuse_readl(FUSE_CPU_IDDQ);
-	soc_iddq_value = tegra_fuse_readl(FUSE_SOC_IDDQ);
-	gpu_iddq_value = tegra_fuse_readl(FUSE_GPU_IDDQ);
+	tegra_fuse_readl(FUSE_CPU_IDDQ, &cpu_iddq_value);
+	tegra_fuse_readl(FUSE_SOC_IDDQ, &soc_iddq_value);
+	tegra_fuse_readl(FUSE_GPU_IDDQ, &gpu_iddq_value);
 
 	cpu_speedo_value = cpu_speedo_0_value;
 

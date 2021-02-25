@@ -610,16 +610,18 @@ static unsigned int utmi_phy_xcvr_setup_value(struct tegra_usb_phy *phy)
 {
 	struct tegra_utmi_config *cfg = &phy->pdata->u_cfg.utmi;
 	signed long val;
+	u32 reg;
 
 	DBG("%s(%d) inst:[%d]\n", __func__, __LINE__, phy->inst);
 
 	if (cfg->xcvr_use_fuses) {
+		tegra_fuse_readl(FUSE_USB_CALIB_0, &reg);
 		if (phy->inst == 0)
-			val = XCVR_SETUP_P0(tegra_fuse_readl(FUSE_USB_CALIB_0));
+			val = XCVR_SETUP_P0(reg);
 		else if (phy->inst == 1)
-			val = XCVR_SETUP_P1(tegra_fuse_readl(FUSE_USB_CALIB_0));
+			val = XCVR_SETUP_P1(reg);
 		else
-			val = XCVR_SETUP_P2(tegra_fuse_readl(FUSE_USB_CALIB_0));
+			val = XCVR_SETUP_P2(reg);
 
 		if (cfg->xcvr_use_lsb) {
 			val = min((unsigned int) ((val & XCVR_SETUP_LSB_MASK)
