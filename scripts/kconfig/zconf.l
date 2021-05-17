@@ -299,11 +299,10 @@ void zconf_initscan(const char *name)
 
 void zconf_trynextfile(const char *name)
 {
-	FILE *file = zconf_fopen(name);
+	struct stat stat;
 
-	if (!file)
+	if (lstat(name, &stat) && errno == ENOENT)
 		return;
-	fclose(file);
 	zconf_nextfile(name);
 }
 
