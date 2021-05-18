@@ -86,8 +86,6 @@ obj-${CONFIG_ARCH_TEGRA_21x_SOC}      += board-t210ref-camera.o
 obj-${CONFIG_ARCH_TEGRA_21x_SOC}      += tegra21_init.o
 
 ifeq ($(CONFIG_PM_SLEEP),y)
-obj-y                                 += pm.o
-obj-y                                 += sleep.o
 obj-$(CONFIG_ARCH_TEGRA_13x_SOC)      += pm-tegra132.o
 endif
 
