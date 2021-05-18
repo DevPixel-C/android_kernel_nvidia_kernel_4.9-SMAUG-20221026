@@ -21,6 +21,7 @@
 #include <linux/module.h>
 #include <linux/cpuidle.h>
 #include <linux/of_platform.h>
+#include <soc/tegra/bpmp_t210_abi.h>
 #include <soc/tegra/tegra_bpmp.h>
 #include <linux/tegra-soc.h>
 #include <linux/cpu_pm.h>
@@ -90,7 +91,7 @@ static int tegra_bpmp_tolerate_idle(int cpu, int ccxtl, int scxtl)
 	data[1] = cpu_to_le32(ccxtl);
 	data[2] = cpu_to_le32(scxtl);
 
-	return tegra_bpmp_send(MRQ_TOLERATE_IDLE, data, sizeof(data));
+	return tegra_bpmp_send_receive(MRQ_TOLERATE_IDLE, data, sizeof(data), NULL, 0);
 }
 
 static int csite_dbg_nopwrdown(void)
@@ -623,7 +624,7 @@ static int tegra210_cpu_notify(struct notifier_block *nb, unsigned long action,
 		tegra_bpmp_tolerate_idle(cpu, TEGRA_PM_CC7, TEGRA_PM_SC7);
 		break;
 	case CPU_DEAD_FROZEN:
-		e = tegra_bpmp_send(MRQ_CPU_FROZEN, &cpu, sizeof(cpu));
+		e = tegra_bpmp_send_receive(MRQ_CPU_FROZEN, &cpu, sizeof(cpu), NULL, 0);
 		WARN_ON(e);
 		break;
 	case CPU_UP_PREPARE:
