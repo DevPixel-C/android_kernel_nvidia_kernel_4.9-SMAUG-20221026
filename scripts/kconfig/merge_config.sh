@@ -169,7 +169,7 @@ if [ "$STRICT_MODE_VIOLATED" = "true" ]; then
 fi
 
 if [ "$RUNMAKE" = "false" ]; then
-	cp -T -- "$TMP_FILE" "$KCONFIG_CONFIG"
+	cp -- "$TMP_FILE" "$KCONFIG_CONFIG"
 	echo "#"
 	echo "# merged configuration written to $KCONFIG_CONFIG (needs make)"
 	echo "#"
