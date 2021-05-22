@@ -38,13 +38,13 @@ static inline cputime64_t get_cpu_iowait_time(
 
 #define DECL_CPULOAD_ATTR(name) \
 static ssize_t show_##name(struct kobject *kobj, \
-	struct attribute *attr, char *buf) \
+	struct kobj_attribute *attr, char *buf) \
 { \
 	return sprintf(buf, "%lu\n", name); \
 } \
 \
 static ssize_t store_##name(struct kobject *kobj,\
-		struct attribute *attr, const char *buf, size_t count) \
+		struct kobj_attribute *attr, const char *buf, size_t count) \
 { \
 	int ret; \
 	unsigned long val; \
@@ -56,11 +56,11 @@ static ssize_t store_##name(struct kobject *kobj,\
 	return count; \
 } \
 \
-static struct global_attr name##_attr = __ATTR(name, 0644, \
+static struct kobj_attribute name##_attr = __ATTR(name, 0644, \
 		show_##name, store_##name);
 
 static ssize_t show_cpus_online(struct kobject *kobj,
-		struct attribute *attr, char *buf)
+		struct kobj_attribute *attr, char *buf)
 {
 	unsigned int i, t;
 	const cpumask_t *cpus = cpu_online_mask;
@@ -72,11 +72,11 @@ static ssize_t show_cpus_online(struct kobject *kobj,
 	return sprintf(buf, "%u\n", i);
 }
 
-static struct global_attr cpus_online_attr = __ATTR(cpus_online, 0444,
+static struct kobj_attribute cpus_online_attr = __ATTR(cpus_online, 0444,
 		show_cpus_online, NULL);
 
 static ssize_t show_cpu_usage(struct kobject *kobj,
-		struct attribute *attr, char *buf)
+		struct kobj_attribute *attr, char *buf)
 {
 	unsigned int t, len, total = 0;
 	const cpumask_t *cpus = cpu_online_mask;
@@ -95,18 +95,18 @@ static ssize_t show_cpu_usage(struct kobject *kobj,
 	return total;
 }
 
-static struct global_attr cpu_usage_attr = __ATTR(cpu_usage, 0444,
+static struct kobj_attribute cpu_usage_attr = __ATTR(cpu_usage, 0444,
 		show_cpu_usage, NULL);
 
 static ssize_t show_enable(struct kobject *kobj,
-		struct attribute *attr, char *buf)
+		struct kobj_attribute *attr, char *buf)
 {
 	return sprintf(buf, "%u\n", enabled);
 }
 
 /* XXX: Remove the now dummy enable variable once readers are updated */
 static ssize_t store_enable(struct kobject *kobj,
-		struct attribute *attr, const char *buf, size_t count)
+		struct kobj_attribute *attr, const char *buf, size_t count)
 {
 	int ret;
 	unsigned long val;
@@ -118,7 +118,7 @@ static ssize_t store_enable(struct kobject *kobj,
 
 	return count;
 }
-static struct global_attr enable_attr = __ATTR(enable, 0644,
+static struct kobj_attribute enable_attr = __ATTR(enable, 0644,
 		show_enable, store_enable);
 
 DECL_CPULOAD_ATTR(io_is_busy)
