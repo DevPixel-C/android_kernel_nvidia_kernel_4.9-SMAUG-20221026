@@ -224,8 +224,8 @@ static void alloc_init_pmd(pud_t *pud, unsigned long addr, unsigned long end,
 			alloc_init_pte(pmd, addr, next, __phys_to_pfn(phys),
 				       prot, pgtable_alloc);
 
-			BUG_ON(pmd_val(old_pmd) != 0 &&
-			       pmd_val(old_pmd) != pmd_val(*pmd));
+			/*BUG_ON(pmd_val(old_pmd) != 0 &&
+			       pmd_val(old_pmd) != pmd_val(*pmd));*/
 		}
 		phys += next - addr;
 	} while (pmd++, addr = next, addr != end);
