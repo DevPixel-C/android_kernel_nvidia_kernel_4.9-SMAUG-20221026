@@ -191,7 +191,6 @@ static struct c2port_ops tegra_c2port_ops = {
 static int tegra_c2port_probe(struct platform_device *pdev)
 {
 	struct tegra_c2port_platform_data *pdata = NULL;
-	u32 value = 0;
 	int error = 0;
 #ifdef CONFIG_OF
 	struct device_node *node = NULL;
