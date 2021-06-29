@@ -764,7 +764,7 @@ static int pca953x_probe(struct i2c_client *client,
 		chip->vcc_reg = NULL;
 	} else if (IS_ERR(chip->vcc_reg)) {
 		ret = PTR_ERR(chip->vcc_reg);
-		dev_err(&client->dev, "vcc regualtor get failed, err %ld\n", ret);
+		dev_err(&client->dev, "vcc regualtor get failed, err %d\n", ret);
 		return ret;
 	}
 
@@ -843,11 +843,9 @@ static int pca953x_remove(struct i2c_client *client)
 	return 0;
 }
 
-static int pca953x_shutdown(struct i2c_client *client) {
+static void pca953x_shutdown(struct i2c_client *client) {
 	if (client->irq)
 		disable_irq(client->irq);
-
-	return 0;
 }
 
 static const struct of_device_id pca953x_dt_ids[] = {
