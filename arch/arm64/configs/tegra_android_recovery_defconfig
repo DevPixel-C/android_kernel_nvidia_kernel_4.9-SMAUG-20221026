@@ -5854,8 +5854,8 @@ CONFIG_USB_HIDDEV=y
 #
 # SHIELD accessory HID drivers
 #
-# CONFIG_HID_SHIELD_BLAKE is not set
-# CONFIG_HID_SHIELD_REMOTE is not set
+CONFIG_HID_SHIELD_BLAKE=y
+CONFIG_HID_SHIELD_REMOTE=y
 # end of SHIELD accessory HID drivers
 # end of HID support
 
