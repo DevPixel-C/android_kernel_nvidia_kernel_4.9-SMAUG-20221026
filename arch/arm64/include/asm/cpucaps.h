@@ -71,7 +71,9 @@
 #define ARM64_KVM_PROTECTED_MODE		60
 #define ARM64_SPECTRE_BHB			62
 
-/* kabi: reserve 63 - 76 for future cpu capabilities */
+#define ARM64_WORKAROUND_NVIDIA_CARMEL_CNP	63
+
+/* kabi: reserve 64 - 76 for future cpu capabilities */
 #define ARM64_NCAPS				76
 
 #endif /* __ASM_CPUCAPS_H */

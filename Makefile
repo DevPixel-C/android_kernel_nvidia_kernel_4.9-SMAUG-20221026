@@ -5,6 +5,34 @@ SUBLEVEL = 66
 EXTRAVERSION =
 NAME = Dare mighty things
 
+ifeq ($(KERNEL_OVERLAYS),)
+ifeq ($(_nv_build_configuration_is_external),0)
+# internal build kernel overlays txt
+CHOSEN_KERNEL_OVERLAYS_TXT := kernel-int-overlays.txt
+else
+ifeq ($(_nv_build_configuration_is_external),)
+# menuconfig make selects internal profile
+# NOTE: external profile menuconfig support may be needed later
+CHOSEN_KERNEL_OVERLAYS_TXT := kernel-int-overlays.txt
+else
+# external build kernel overlays txt
+CHOSEN_KERNEL_OVERLAYS_TXT := kernel-overlays.txt
+endif
+endif
+KERNEL_OVERLAYS := $(addprefix $(CURDIR)/../,$(shell cat $(CHOSEN_KERNEL_OVERLAYS_TXT)))
+else
+override KERNEL_OVERLAYS := $(subst :, ,$(KERNEL_OVERLAYS))
+endif
+override KERNEL_OVERLAYS := $(abspath $(KERNEL_OVERLAYS))
+export KERNEL_OVERLAYS
+
+define set_srctree_overlay
+  overlay_name := $(lastword $(subst /, ,$(overlay)))
+  srctree.$(overlay_name) := $(overlay)
+  export srctree.$(overlay_name)
+endef
+$(foreach overlay,$(KERNEL_OVERLAYS),$(eval $(value set_srctree_overlay)))
+
 # *DOCUMENTATION*
 # To see a list of typical targets execute "make help"
 # More info can be located in ./README
@@ -259,6 +287,7 @@ endif
 
 objtree		:= .
 VPATH		:= $(srctree)
+VPATH		+= $(foreach overlay,$(KERNEL_OVERLAYS),:$(overlay))
 
 export building_out_of_srctree srctree objtree VPATH
 
@@ -569,6 +598,7 @@ ifdef building_out_of_srctree
 		false; \
 	fi
 	$(Q)ln -fsn $(srctree) source
+	$(Q)cp -f $(srctree)/kernel*overlays.txt .
 	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/mkmakefile $(srctree)
 	$(Q)test -e .gitignore || \
 	{ echo "# this is build directory, ignore it"; echo "*"; } > .gitignore
@@ -1437,7 +1467,7 @@ ifneq ($(dtstree),)
 
 PHONY += dtbs dtbs_install dtbs_check
 dtbs: include/config/kernel.release scripts_dtc
-	$(Q)$(MAKE) $(build)=$(dtstree)
+	$(Q)$(MAKE) $(build)=$(dtstree) dtbs
 
 ifneq ($(filter dtbs_check, $(MAKECMDGOALS)),)
 export CHECK_DTBS=y

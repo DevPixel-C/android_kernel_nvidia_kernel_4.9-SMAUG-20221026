@@ -1042,6 +1042,20 @@ static int snd_usb_hw_free(struct snd_pcm_substream *substream)
 }
 
 /*
+ * to delay or sleep if running interval shorter then *intv*,
+ * time unit is in *ms*
+ */
+static void rest_if_interval_shorter_than(unsigned long intv,
+			unsigned long *last)
+{
+	if (last != 0 && time_before(jiffies, *last))
+		/* it should be in !in_atomic() context */
+		msleep(intv);
+
+	*last = jiffies + msecs_to_jiffies(intv);
+}
+
+/*
  * prepare callback
  *
  * only a few subtle things...
@@ -1053,6 +1067,9 @@ static int snd_usb_pcm_prepare(struct snd_pcm_substream *substream)
 	struct usb_host_interface *alts;
 	struct usb_interface *iface;
 	int ret;
+
+	/* to prevent from short interval calling */
+	rest_if_interval_shorter_than(50, &subs->last_prepare);
 
 	ret = snd_vendor_set_pcm_buf(subs->dev, subs->cur_audiofmt->iface);
 	if (ret)

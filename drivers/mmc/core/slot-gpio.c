@@ -38,6 +38,11 @@ static irqreturn_t mmc_gpio_cd_irqt(int irq, void *dev_id)
 	if (!allow)
 		return IRQ_HANDLED;
 
+	if (!host->cd_cap_invert)
+		host->rem_card_present = (mmc_gpio_get_cd(host) == 0);
+	else
+		host->rem_card_present = mmc_gpio_get_cd(host);
+
 	host->trigger_card_event = true;
 	mmc_detect_change(host, msecs_to_jiffies(ctx->cd_debounce_delay_ms));
 

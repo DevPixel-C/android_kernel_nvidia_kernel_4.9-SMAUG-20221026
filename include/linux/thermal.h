@@ -19,7 +19,7 @@
 #include <uapi/linux/thermal.h>
 
 #define THERMAL_TRIPS_NONE	-1
-#define THERMAL_MAX_TRIPS	12
+#define THERMAL_MAX_TRIPS	48
 
 /* invalid cooling state */
 #define THERMAL_CSTATE_INVALID -1UL
@@ -157,6 +157,7 @@ struct thermal_zone_device {
 	int id;
 	char type[THERMAL_NAME_LENGTH];
 	struct device device;
+	struct device_node *np;
 	struct attribute_group trips_attribute_group;
 	struct thermal_attr *trip_temp_attrs;
 	struct thermal_attr *trip_type_attrs;
@@ -206,6 +207,7 @@ struct thermal_governor {
 	int (*bind_to_tz)(struct thermal_zone_device *tz);
 	void (*unbind_from_tz)(struct thermal_zone_device *tz);
 	int (*throttle)(struct thermal_zone_device *tz, int trip);
+	int (*of_parse)(struct thermal_zone_params *tp, struct device_node *np);
 	struct list_head	governor_list;
 
 	ANDROID_KABI_RESERVE(1);
@@ -231,7 +233,7 @@ struct thermal_bind_params {
 	 * thermal zone and cdev, for a particular trip point.
 	 * See Documentation/driver-api/thermal/sysfs-api.rst for more information.
 	 */
-	int trip_mask;
+	u64 trip_mask;
 
 	/*
 	 * This is an array of cooling state limits. Must have exactly
@@ -251,6 +253,7 @@ struct thermal_bind_params {
 /* Structure to define Thermal Zone parameters */
 struct thermal_zone_params {
 	char governor_name[THERMAL_NAME_LENGTH];
+	void *governor_params;
 
 	/*
 	 * a boolean to indicate if the thermal to hwmon sysfs interface
@@ -381,7 +384,7 @@ void devm_thermal_zone_of_sensor_unregister(struct device *dev,
 #endif
 
 #ifdef CONFIG_THERMAL
-struct thermal_zone_device *thermal_zone_device_register(const char *, int, int,
+struct thermal_zone_device *thermal_zone_device_register(const char *, int, u64,
 		void *, struct thermal_zone_device_ops *,
 		struct thermal_zone_params *, int, int);
 void thermal_zone_device_unregister(struct thermal_zone_device *);
@@ -407,6 +410,8 @@ devm_thermal_of_cooling_device_register(struct device *dev,
 				const struct thermal_cooling_device_ops *ops);
 void thermal_cooling_device_unregister(struct thermal_cooling_device *);
 struct thermal_zone_device *thermal_zone_get_zone_by_name(const char *name);
+struct thermal_zone_device *
+thermal_zone_get_zone_by_node(struct device_node *node);
 int thermal_zone_get_temp(struct thermal_zone_device *tz, int *temp);
 int thermal_zone_get_slope(struct thermal_zone_device *tz);
 int thermal_zone_get_offset(struct thermal_zone_device *tz);
@@ -418,7 +423,7 @@ int thermal_zone_device_disable(struct thermal_zone_device *tz);
 int thermal_zone_device_is_enabled(struct thermal_zone_device *tz);
 #else
 static inline struct thermal_zone_device *thermal_zone_device_register(
-	const char *type, int trips, int mask, void *devdata,
+	const char *type, int trips, u64 mask, void *devdata,
 	struct thermal_zone_device_ops *ops,
 	struct thermal_zone_params *tzp,
 	int passive_delay, int polling_delay)
@@ -447,6 +452,9 @@ static inline void thermal_cooling_device_unregister(
 { }
 static inline struct thermal_zone_device *thermal_zone_get_zone_by_name(
 		const char *name)
+{ return ERR_PTR(-ENODEV); }
+static inline struct thermal_zone_device *thermal_zone_get_zone_by_node(
+		struct device_node *node)
 { return ERR_PTR(-ENODEV); }
 static inline int thermal_zone_get_temp(
 		struct thermal_zone_device *tz, int *temp)
