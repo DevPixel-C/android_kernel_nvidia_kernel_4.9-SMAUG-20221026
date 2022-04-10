@@ -1682,7 +1682,7 @@ static void mmc_blk_read_single(struct mmc_queue *mq, struct request *req)
 				goto error_exit;
 
 			if (!mmc_host_is_spi(host) &&
-			    !mmc_broken_ready_for_data(status)) {
+			    !mmc_broken_ready_for_data(card, status)) {
 				err = mmc_blk_fix_state(card, req);
 				if (err)
 					goto error_exit;

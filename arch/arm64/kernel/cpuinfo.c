@@ -412,10 +412,6 @@ static void __cpuinfo_store_cpu(struct cpuinfo_arm64 *info)
 		info->reg_zcr = read_zcr_features();
 
 	cpuinfo_detect_icache_policy(info);
-
-	/* Denver firmware version */
-	if (MIDR_IMPLEMENTOR(info->reg_midr) == ARM_CPU_IMP_NVIDIA)
-		asm volatile("mrs %0, AIDR_EL1" : "=r" (info->reg_aidr) : );
 }
 
 void cpuinfo_store_cpu(void)

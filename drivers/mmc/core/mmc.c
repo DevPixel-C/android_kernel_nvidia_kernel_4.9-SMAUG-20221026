@@ -30,7 +30,6 @@
 #define MIN_CACHE_EN_TIMEOUT_MS 1600
 
 static int mmc_select_hs400es(struct mmc_card *card);
-static int mmc_hs200_tuning(struct mmc_card *card);
 
 static const unsigned int tran_exp[] = {
 	10000,		100000,		1000000,	10000000,

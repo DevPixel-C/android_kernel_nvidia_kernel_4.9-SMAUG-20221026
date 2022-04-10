@@ -1139,12 +1139,12 @@ static int check_hash_result(const char *type,
 	if (memcmp(result, vec->digest, digestsize) != 0) {
 		pr_err("alg: %s: %s test failed (wrong result) on test vector %s, cfg=\"%s\"\n",
 		       type, driver, vec_name, cfg->name);
-		hexdump(result, digestsize);
+		/*hexdump(result, digestsize);*/
 		return -EINVAL;
 	} else {
 		pr_info("alg: %s: %s test passed on test vector %s, cfg=\"%s\"\n",
 		       type, driver, vec_name, cfg->name);
-		hexdump(result, digestsize);
+		/*hexdump(result, digestsize);*/
 	}
 	if (!testmgr_is_poison(&result[digestsize], TESTMGR_POISON_LEN)) {
 		pr_err("alg: %s: %s overran result buffer on test vector %s, cfg=\"%s\"\n",

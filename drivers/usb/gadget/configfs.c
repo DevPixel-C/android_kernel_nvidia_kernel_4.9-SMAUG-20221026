@@ -1622,6 +1622,9 @@ static int configfs_composite_setup(struct usb_gadget *gadget,
 
 #endif // CONFIG_USB_CONFIGFS_UEVENT
 
+#ifdef CONFIG_USB_CONFIGFS_F_ACC
+extern void acc_disconnect(void);
+#endif
 static void configfs_composite_disconnect(struct usb_gadget *gadget)
 {
 	struct usb_composite_dev *cdev;
