@@ -2331,11 +2331,11 @@ phys_addr_t iommu_iova_to_phys(struct iommu_domain *domain, dma_addr_t iova)
 EXPORT_SYMBOL_GPL(iommu_iova_to_phys);
 
 static size_t iommu_pgsize(struct iommu_domain *domain, unsigned long iova,
-			   phys_addr_t paddr, size_t size, size_t *count)
+			   phys_addr_t paddr, size_t size)
 {
-	unsigned int pgsize_idx, pgsize_idx_next;
+	unsigned int pgsize_idx;
 	unsigned long pgsizes;
-	size_t offset, pgsize, pgsize_next;
+	size_t pgsize;
 	unsigned long addr_merge = paddr | iova;
 
 	/* Page sizes supported by the hardware and small enough for @size */
@@ -2351,37 +2351,7 @@ static size_t iommu_pgsize(struct iommu_domain *domain, unsigned long iova,
 	/* Pick the biggest page size remaining */
 	pgsize_idx = __fls(pgsizes);
 	pgsize = BIT(pgsize_idx);
-	if (!count)
-		return pgsize;
 
-
-	/* Find the next biggest support page size, if it exists */
-	pgsizes = domain->pgsize_bitmap & ~GENMASK(pgsize_idx, 0);
-	if (!pgsizes)
-		goto out_set_count;
-
-	pgsize_idx_next = __ffs(pgsizes);
-	pgsize_next = BIT(pgsize_idx_next);
-
-	/*
-	 * There's no point trying a bigger page size unless the virtual
-	 * and physical addresses are similarly offset within the larger page.
-	 */
-	if ((iova ^ paddr) & (pgsize_next - 1))
-		goto out_set_count;
-
-	/* Calculate the offset to the next page size alignment boundary */
-	offset = pgsize_next - (addr_merge & (pgsize_next - 1));
-
-	/*
-	 * If size is big enough to accommodate the larger page, reduce
-	 * the number of smaller pages.
-	 */
-	if (offset + pgsize_next <= size)
-		size = offset;
-
-out_set_count:
-	*count = size >> pgsize_idx;
 	return pgsize;
 }
 
@@ -2505,19 +2475,6 @@ int iommu_map_atomic(struct iommu_domain *domain, unsigned long iova,
 }
 EXPORT_SYMBOL_GPL(iommu_map_atomic);
 
-static size_t __iommu_unmap_pages(struct iommu_domain *domain,
-				  unsigned long iova, size_t size,
-				  struct iommu_iotlb_gather *iotlb_gather)
-{
-	const struct iommu_ops *ops = domain->ops;
-	size_t pgsize, count;
-
-	pgsize = iommu_pgsize(domain, iova, iova, size, &count);
-	return ops->unmap_pages ?
-	       ops->unmap_pages(domain, iova, pgsize, count, iotlb_gather) :
-	       ops->unmap(domain, iova, pgsize, iotlb_gather);
-}
-
 static size_t __iommu_unmap(struct iommu_domain *domain,
 			    unsigned long iova, size_t size,
 			    struct iommu_iotlb_gather *iotlb_gather)
@@ -2527,7 +2484,7 @@ static size_t __iommu_unmap(struct iommu_domain *domain,
 	unsigned long orig_iova = iova;
 	unsigned int min_pagesz;
 
-	if (unlikely(!(ops->unmap || ops->unmap_pages) ||
+	if (unlikely(ops->unmap == NULL ||
 		     domain->pgsize_bitmap == 0UL))
 		return 0;
 
@@ -2555,9 +2512,10 @@ static size_t __iommu_unmap(struct iommu_domain *domain,
 	 * or we hit an area that isn't mapped.
 	 */
 	while (unmapped < size) {
-		unmapped_page = __iommu_unmap_pages(domain, iova,
-						    size - unmapped,
-						    iotlb_gather);
+		size_t pgsize;
+
+		pgsize = iommu_pgsize(domain, iova, iova, size - unmapped);
+		unmapped_page = ops->unmap(domain, iova, pgsize, iotlb_gather);
 		if (!unmapped_page)
 			break;
 
