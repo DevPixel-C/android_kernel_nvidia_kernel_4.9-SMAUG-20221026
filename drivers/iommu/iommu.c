@@ -2355,30 +2355,6 @@ static size_t iommu_pgsize(struct iommu_domain *domain, unsigned long iova,
 	return pgsize;
 }
 
-static int __iommu_map_pages(struct iommu_domain *domain, unsigned long iova,
-			     phys_addr_t paddr, size_t size, int prot,
-			     gfp_t gfp, size_t *mapped)
-{
-	const struct iommu_ops *ops = domain->ops;
-	size_t pgsize, count;
-	int ret;
-
-	pgsize = iommu_pgsize(domain, iova, paddr, size, &count);
-
-	pr_debug("mapping: iova 0x%lx pa %pa pgsize 0x%zx count %ld\n",
-			 iova, &paddr, pgsize, count);
-
-	if (ops->map_pages) {
-		ret = ops->map_pages(domain, iova, paddr, pgsize, count, prot,
-				     gfp, mapped);
-	} else {
-		ret = ops->map(domain, iova, paddr, pgsize, prot, gfp);
-		*mapped = ret ? 0 : pgsize;
-	}
-
-	return ret;
-}
-
 static int __iommu_map(struct iommu_domain *domain, unsigned long iova,
 		       phys_addr_t paddr, size_t size, int prot, gfp_t gfp,
 		       struct iommu_iotlb_gather *gather)
@@ -2391,7 +2367,7 @@ static int __iommu_map(struct iommu_domain *domain, unsigned long iova,
 	phys_addr_t orig_paddr = paddr;
 	int ret = 0;
 
-	if (unlikely(!(ops->map || ops->map_pages) ||
+	if (unlikely(ops->map == NULL ||
 		     domain->pgsize_bitmap == 0UL))
 		return -ENODEV;
 
@@ -2417,21 +2393,18 @@ static int __iommu_map(struct iommu_domain *domain, unsigned long iova,
 	pr_debug("map: iova 0x%lx pa %pa size 0x%zx\n", iova, &paddr, size);
 
 	while (size) {
-		size_t mapped = 0;
+		size_t pgsize = iommu_pgsize(domain, iova, paddr, size, NULL);
 
-		ret = __iommu_map_pages(domain, iova, paddr, size, prot, gfp,
-					&mapped);
-		/*
-		 * Some pages may have been mapped, even if an error occurred,
-		 * so we should account for those so they can be unmapped.
-		 */
-		size -= mapped;
+		pr_debug("mapping: iova 0x%lx pa %pa pgsize 0x%zx\n",
+			 iova, &paddr, pgsize);
+		ret = ops->map(domain, iova, paddr, pgsize, prot, gfp);
 
 		if (ret)
 			break;
 
-		iova += mapped;
-		paddr += mapped;
+		iova += pgsize;
+		paddr += pgsize;
+		size -= pgsize;
 	}
 
 	/* unroll mapping in case something went wrong */
