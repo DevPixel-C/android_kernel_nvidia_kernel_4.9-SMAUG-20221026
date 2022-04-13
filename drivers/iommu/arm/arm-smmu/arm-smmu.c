@@ -1326,9 +1326,8 @@ static int arm_smmu_map(struct iommu_domain *domain, unsigned long iova,
 	return ret;
 }
 
-static size_t arm_smmu_unmap_pages(struct iommu_domain *domain, unsigned long iova,
-				   size_t pgsize, size_t pgcount,
-				   struct iommu_iotlb_gather *iotlb_gather)
+static size_t arm_smmu_unmap(struct iommu_domain *domain, unsigned long iova,
+			     size_t size, struct iommu_iotlb_gather *gather)
 {
 	struct arm_smmu_domain *smmu_domain = to_smmu_domain(domain);
 	struct io_pgtable_ops *ops = smmu_domain->pgtbl_ops;
@@ -1347,7 +1346,7 @@ static size_t arm_smmu_unmap_pages(struct iommu_domain *domain, unsigned long io
 #endif
 
 	arm_smmu_rpm_get(smmu);
-	ret = ops->unmap_pages(ops, iova, pgsize, pgcount, iotlb_gather);
+	ret = ops->unmap(ops, iova, size, gather);
 	arm_smmu_rpm_put(smmu);
 
 	if (time_before)
@@ -1764,7 +1763,7 @@ static struct iommu_ops arm_smmu_ops = {
 	.domain_free		= arm_smmu_domain_free,
 	.attach_dev		= arm_smmu_attach_dev,
 	.map			= arm_smmu_map,
-	.unmap_pages		= arm_smmu_unmap_pages,
+	.unmap			= arm_smmu_unmap,
 	.dma_sync		= arm_smmu_dma_sync,
 	.flush_iotlb_all	= arm_smmu_flush_iotlb_all,
 	.iotlb_sync		= arm_smmu_iotlb_sync,
