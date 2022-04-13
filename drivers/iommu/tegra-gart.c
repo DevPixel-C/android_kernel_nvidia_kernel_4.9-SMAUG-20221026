@@ -261,8 +261,7 @@ static int gart_iommu_of_xlate(struct device *dev,
 	return 0;
 }
 
-static void gart_iommu_sync_map(struct iommu_domain *domain, unsigned long iova,
-				size_t size)
+static void gart_iommu_sync_map(struct iommu_domain *domain)
 {
 	FLUSH_GART_REGS(gart_handle);
 }
@@ -270,9 +269,7 @@ static void gart_iommu_sync_map(struct iommu_domain *domain, unsigned long iova,
 static void gart_iommu_sync(struct iommu_domain *domain,
 			    struct iommu_iotlb_gather *gather)
 {
-	size_t length = gather->end - gather->start;
-
-	gart_iommu_sync_map(domain, gather->start, length);
+	gart_iommu_sync_map(domain);
 }
 
 static const struct iommu_ops gart_iommu_ops = {
