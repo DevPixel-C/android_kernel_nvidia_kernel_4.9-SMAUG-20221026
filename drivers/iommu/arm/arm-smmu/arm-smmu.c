@@ -1295,9 +1295,8 @@ rpm_put:
 	return ret;
 }
 
-static int arm_smmu_map_pages(struct iommu_domain *domain, unsigned long iova,
-			      phys_addr_t paddr, size_t pgsize, size_t pgcount,
-			      int prot, gfp_t gfp, size_t *mapped)
+static int arm_smmu_map(struct iommu_domain *domain, unsigned long iova,
+			phys_addr_t paddr, size_t size, int prot, gfp_t gfp)
 {
 	struct arm_smmu_domain *smmu_domain = to_smmu_domain(domain);
 	struct io_pgtable_ops *ops = smmu_domain->pgtbl_ops;
@@ -1316,7 +1315,7 @@ static int arm_smmu_map_pages(struct iommu_domain *domain, unsigned long iova,
 #endif
 
 	arm_smmu_rpm_get(smmu);
-	ret = ops->map_pages(ops, iova, paddr, pgsize, pgcount, prot, gfp, mapped);
+	ret = ops->map(ops, iova, paddr, size, prot, gfp);
 	arm_smmu_rpm_put(smmu);
 
 	if (time_before)
@@ -1764,7 +1763,7 @@ static struct iommu_ops arm_smmu_ops = {
 	.domain_alloc		= arm_smmu_domain_alloc,
 	.domain_free		= arm_smmu_domain_free,
 	.attach_dev		= arm_smmu_attach_dev,
-	.map_pages		= arm_smmu_map_pages,
+	.map			= arm_smmu_map,
 	.unmap_pages		= arm_smmu_unmap_pages,
 	.dma_sync		= arm_smmu_dma_sync,
 	.flush_iotlb_all	= arm_smmu_flush_iotlb_all,
