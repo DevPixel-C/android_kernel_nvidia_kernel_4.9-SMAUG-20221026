@@ -3330,7 +3330,6 @@ static int patch_tegra_hdmi(struct hda_codec *codec)
 {
 	struct hdmi_spec *spec;
 	int err;
-	struct hdmi_spec *spec;
 
 	err = patch_generic_hdmi(codec);
 	if (err)
