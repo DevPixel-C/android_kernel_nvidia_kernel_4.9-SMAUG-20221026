@@ -853,6 +853,10 @@ int of_gpiochip_suspend(struct gpio_chip *chip)
 	int ret;
 	int i, ncells, ngpios;
 
+	ncells = of_gpio_get_gpio_cells_size(chip->of_node);
+	if (ncells < 0)
+		return 0;
+
 	for_each_available_child_of_node(chip->of_node, np) {
 		if (!of_property_read_bool(np, "gpio-suspend"))
 			continue;
