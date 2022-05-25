@@ -3302,7 +3302,7 @@ enum tegra_io_rail_pads_params {
 static const struct pinconf_generic_params tegra_io_pads_cfg_params[] = {
 	{
 		.property = "nvidia,enable-voltage-switching",
-		.param = PIN_CONFIG_DYNAMIC_VOLTAGE_SWITCH,
+		.param = (enum pin_config_param)PIN_CONFIG_DYNAMIC_VOLTAGE_SWITCH,
 	},
 };
 
