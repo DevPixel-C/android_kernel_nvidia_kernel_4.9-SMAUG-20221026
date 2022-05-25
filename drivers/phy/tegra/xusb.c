@@ -1312,7 +1312,7 @@ remove:
 static int tegra_xusb_padctl_remove(struct platform_device *pdev)
 {
 	struct tegra_xusb_padctl *padctl = platform_get_drvdata(pdev);
-	int err;
+	int err = 0;
 
 	tegra_xusb_remove_ports(padctl);
 	tegra_xusb_remove_pads(padctl);
