@@ -163,6 +163,11 @@ static ssize_t power_supply_show_property(struct device *dev,
 		ret = sprintf(buf, "%s\n",
 			      power_supply_type_text[value.intval]);
 		break;
+	case POWER_SUPPLY_PROP_USB_TYPE:
+		ret = power_supply_show_usb_type(dev, psy->desc->usb_types,
+						 psy->desc->num_usb_types,
+						 &value, buf);
+		break;
 	case POWER_SUPPLY_PROP_SCOPE:
 		ret = sprintf(buf, "%s\n",
 			      power_supply_scope_text[value.intval]);
